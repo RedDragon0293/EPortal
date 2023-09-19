@@ -35,6 +35,8 @@ public class HelloController {
                 button.setText("Logout");
             } else if (button.getText().equals("Logout")) {
                 try {
+                    //经过测试，登出时不需要userIndex也能成功登出
+                    //为了避免不必要的麻烦，仍然传入userIndex
                     HttpURLConnection connection = Authenticator.logout(Authenticator.userIndex);
                     if (connection == null) {
                         resultText.setText("Error!");
