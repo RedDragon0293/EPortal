@@ -1,0 +1,24 @@
+<component name="ArtifactManager">
+  <artifact name="EPortal:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/EPortal_jar</output-path>
+    <root id="root">
+      <element id="archive" name="EPortal.jar">
+        <element id="module-output" name="EPortal.main" />
+      </element>
+      <element id="library" level="project" name="Gradle: org.openjfx:javafx-graphics:17.0.6" />
+      <element id="library" level="project" name="Gradle: org.openjfx:javafx-graphics:win:17.0.6" />
+      <element id="library" level="project" name="Gradle: org.junit.platform:junit-platform-commons:1.9.2" />
+      <element id="library" level="project" name="Gradle: com.google.code.gson:gson:2.8.9" />
+      <element id="library" level="project" name="Gradle: org.junit.jupiter:junit-jupiter-engine:5.9.2" />
+      <element id="library" level="project" name="Gradle: org.junit.jupiter:junit-jupiter-api:5.9.2" />
+      <element id="library" level="project" name="Gradle: org.openjfx:javafx-controls:17.0.6" />
+      <element id="library" level="project" name="Gradle: org.controlsfx:controlsfx:11.1.2" />
+      <element id="library" level="project" name="Gradle: org.opentest4j:opentest4j:1.2.0" />
+      <element id="library" level="project" name="Gradle: org.openjfx:javafx-fxml:win:17.0.6" />
+      <element id="library" level="project" name="Gradle: org.openjfx:javafx-base:17.0.6" />
+      <element id="library" level="project" name="Gradle: org.openjfx:javafx-controls:win:17.0.6" />
+      <element id="library" level="project" name="Gradle: org.openjfx:javafx-base:win:17.0.6" />
+      <element id="library" level="project" name="Gradle: org.junit.platform:junit-platform-engine:1.9.2" />
+    </root>
+  </artifact>
+</component>
