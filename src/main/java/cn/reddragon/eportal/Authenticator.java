@@ -2,9 +2,12 @@ package cn.reddragon.eportal;
 
 import cn.reddragon.eportal.utils.HttpUtils;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.NoRouteToHostException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -77,7 +80,39 @@ public class Authenticator {
                 online = false;
                 return false;
             }
-        } catch (Exception e) {
+        } catch (SocketTimeoutException e) {
+            if (SystemTray.isSupported()) {
+                SystemTray tray = SystemTray.getSystemTray();
+                Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
+                TrayIcon icon = new TrayIcon(image, "Error");
+                icon.setImageAutoSize(true);
+                try {
+                    tray.add(icon);
+                } catch (AWTException e1) {
+                    throw new RuntimeException(e1);
+                }
+                icon.displayMessage("Error", "Connection timeout!", TrayIcon.MessageType.ERROR);
+                tray.remove(icon);
+                System.exit(0);
+            }
+            return false;
+        } catch (NoRouteToHostException e) {
+            if (SystemTray.isSupported()) {
+                SystemTray tray = SystemTray.getSystemTray();
+                Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
+                TrayIcon icon = new TrayIcon(image, "Error");
+                icon.setImageAutoSize(true);
+                try {
+                    tray.add(icon);
+                } catch (AWTException e1) {
+                    throw new RuntimeException(e1);
+                }
+                icon.displayMessage("Error", "No Internet connection!", TrayIcon.MessageType.ERROR);
+                tray.remove(icon);
+                System.exit(0);
+            }
+            return false;
+        } catch (IOException e) {
             online = false;
             return false;
         }

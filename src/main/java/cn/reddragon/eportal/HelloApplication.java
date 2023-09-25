@@ -12,14 +12,19 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.awt.*;
+import java.io.IOException;
 
 public class HelloApplication extends Application {
     private static Label statusLabel;
     private static Button button;
     public static final Thread askThread = new Thread(() -> {
         while (true) {
+            try {
+                Thread.sleep(2500L);
+            } catch (InterruptedException e) {
+                //throw new RuntimeException(e);
+            }
             Authenticator.isOnline();
             Platform.runLater(() -> {
                 statusLabel.setText("Current status:" + (Authenticator.online ? "Online" : "Offline"));
@@ -29,11 +34,6 @@ public class HelloApplication extends Application {
                     button.setText("Login");
                 }
             });
-            try {
-                Thread.sleep(2500L);
-            } catch (InterruptedException e) {
-                //throw new RuntimeException(e);
-            }
         }
     });
 
@@ -84,7 +84,6 @@ public class HelloApplication extends Application {
             e.printStackTrace();
             System.exit(0);
         } catch (IOException ignored) {
-
         }
         launch();
         System.exit(0);

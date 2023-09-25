@@ -3,7 +3,8 @@ package cn.reddragon.eportal;
 import cn.reddragon.eportal.utils.HttpUtils;
 import cn.reddragon.eportal.utils.IOUtils;
 import cn.reddragon.eportal.utils.URIEncoder;
-import com.google.gson.*;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -29,7 +30,7 @@ public class HelloController {
 
     @FXML
     protected void onLoginButtonClick() {
-        if (Authenticator.isOnline()) {
+        if (Authenticator.online) {
             if (button.getText().equals("Login")) {
                 resultText.setText("Already logged in!");
                 button.setText("Logout");
