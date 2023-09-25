@@ -15,3 +15,8 @@
 读取服务器返回的信息时编码错误
 ### 下载
 [GitHub Release](https://github.com/RedDragon0293/EPortal/releases)
+
+- 若您的电脑中未安装Java，请下载`EPortal-1.0-jreBundled.zip`，解压后运行`EPortal.exe`
+- 若已安装Java，请下载`EPortal-1.0-noJre.zip`，解压后运行`EPortal-1.0-SNAPSHOT-runnable.jar`
+  **请注意**：软件仅在Java17环境下经过测试，若您无法判断Java版本或下载`EPortal-1.0-noJre.zip`
+  之后无法正常运行，请下载`EPortal-1.0-jreBundled.zip`
