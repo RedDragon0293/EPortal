@@ -27,17 +27,13 @@ public class HelloApplication extends Application {
             }
             Platform.runLater(() -> {
                 Authenticator.checkOnline();
-                statusLabel.setText("Current status:" + (Authenticator.getOnline() ? "Online" : "Offline"));
-                if (Authenticator.getOnline()) {
-                    button.setText("Logout");
-                } else {
-                    button.setText("Login");
-                }
+                updateStatus();
             });
         }
     });
 
     public static void main(String[] args) {
+        Authenticator.checkOnline();
         try {
             if (Authenticator.getOnline()) {
                 System.out.println("Already connected!");
@@ -64,6 +60,15 @@ public class HelloApplication extends Application {
         System.exit(0);
     }
 
+    public static void updateStatus() {
+        statusLabel.setText("Current status:" + (Authenticator.getOnline() ? "Online" : "Offline"));
+        if (Authenticator.getOnline()) {
+            button.setText("Logout");
+        } else {
+            button.setText("Login");
+        }
+    }
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
@@ -82,6 +87,7 @@ public class HelloApplication extends Application {
         TextField pass = (TextField) root.lookup("#passwordField");
         name.setText(config[0]);
         pass.setText(config[1]);
+        updateStatus();
         askThread.start();
         Authenticator.checkOnline();
         if (!Authenticator.getOnline()) {
