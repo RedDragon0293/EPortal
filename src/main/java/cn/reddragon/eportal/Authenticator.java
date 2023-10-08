@@ -27,32 +27,36 @@ public class Authenticator {
             out.flush();
             connection.connect();
             return connection;
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static String getUserIndex() throws IOException {
-        if (!Authenticator.isOnline()) {
-            return null;
+    public static void getUserIndex() {
+        if (!Authenticator.getOnline()) {
+            userIndex = null;
         }
-        HttpURLConnection connection = HttpUtils.make("http://10.96.0.155/eportal/redirectortosuccess.jsp", "GET");
-        connection.setInstanceFollowRedirects(false);
-        connection.connect();
-        Map<String, List<String>> result = connection.getHeaderFields();
-        String redirectLocation = result.get("Location").get(0);
-        String r = redirectLocation.substring(redirectLocation.indexOf('=') + 1);
-        userIndex = r;
-        return r;
+        try {
+            HttpURLConnection connection = HttpUtils.make("http://10.96.0.155/eportal/redirectortosuccess.jsp", "GET");
+            connection.setInstanceFollowRedirects(false);
+            connection.connect();
+            Map<String, List<String>> result = connection.getHeaderFields();
+            String redirectLocation = result.get("Location").get(0);
+            userIndex = redirectLocation.substring(redirectLocation.indexOf('=') + 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+            userIndex = null;
+        }
     }
 
-    public static HttpURLConnection logout(String userIndex) {
-        String content = "userIndex=" + userIndex;
+    //经过测试，登出时不需要userIndex也能成功登出
+    public static HttpURLConnection logout() {
+        String content = "userIndex=" + userIndex();
         try {
             HttpURLConnection connection = HttpUtils.make(ePortalUrl + "logout", "POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            connection.setRequestProperty("Referer", "http://10.96.0.155/eportal/success.jsp?userIndex=" + userIndex);
+            connection.setRequestProperty("Referer", "http://10.96.0.155/eportal/success.jsp?userIndex=" + userIndex());
             PrintWriter out = new PrintWriter(connection.getOutputStream());
             out.print(content);
             out.flush();
@@ -63,7 +67,18 @@ public class Authenticator {
         }
     }
 
-    public static boolean isOnline() {
+    public static boolean getOnline() {
+        return online;
+    }
+
+    public static String userIndex() {
+        if (userIndex == null) {
+            getUserIndex();
+        }
+        return userIndex;
+    }
+
+    public static void checkOnline() {
         try {
             HttpURLConnection connection = HttpUtils.make("http://10.96.0.155/eportal/redirectortosuccess.jsp", "GET");
             connection.setInstanceFollowRedirects(false);
@@ -72,14 +87,7 @@ public class Authenticator {
             String redirectLocation = result.get("Location").get(0);
             if (Objects.equals(redirectLocation, "Http://123.123.123.123")) {
                 online = false;
-                return false;
-            } else if (redirectLocation.contains("http://10.96.0.155/eportal/./success.jsp?")) {
-                online = true;
-                return true;
-            } else {
-                online = false;
-                return false;
-            }
+            } else online = redirectLocation.contains("http://10.96.0.155/eportal/./success.jsp?");
         } catch (SocketTimeoutException e) {
             if (SystemTray.isSupported()) {
                 SystemTray tray = SystemTray.getSystemTray();
@@ -95,7 +103,6 @@ public class Authenticator {
                 tray.remove(icon);
                 System.exit(0);
             }
-            return false;
         } catch (NoRouteToHostException e) {
             if (SystemTray.isSupported()) {
                 SystemTray tray = SystemTray.getSystemTray();
@@ -111,10 +118,8 @@ public class Authenticator {
                 tray.remove(icon);
                 System.exit(0);
             }
-            return false;
         } catch (IOException e) {
             online = false;
-            return false;
         }
     }
 }

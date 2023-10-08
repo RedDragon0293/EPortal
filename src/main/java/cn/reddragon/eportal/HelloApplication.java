@@ -25,10 +25,10 @@ public class HelloApplication extends Application {
             } catch (InterruptedException e) {
                 //throw new RuntimeException(e);
             }
-            Authenticator.isOnline();
             Platform.runLater(() -> {
-                statusLabel.setText("Current status:" + (Authenticator.online ? "Online" : "Offline"));
-                if (Authenticator.online) {
+                Authenticator.checkOnline();
+                statusLabel.setText("Current status:" + (Authenticator.getOnline() ? "Online" : "Offline"));
+                if (Authenticator.getOnline()) {
                     button.setText("Logout");
                 } else {
                     button.setText("Login");
@@ -36,6 +36,33 @@ public class HelloApplication extends Application {
             });
         }
     });
+
+    public static void main(String[] args) {
+        try {
+            if (Authenticator.getOnline()) {
+                System.out.println("Already connected!");
+                if (SystemTray.isSupported()) {
+                    SystemTray tray = SystemTray.getSystemTray();
+                    Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
+                    TrayIcon icon = new TrayIcon(image, "Error");
+                    icon.setImageAutoSize(true);
+                    tray.add(icon);
+                    icon.displayMessage("Error", "You have already logged in!", TrayIcon.MessageType.ERROR);
+                    tray.remove(icon);
+                }
+                Authenticator.getUserIndex();
+                //System.exit(0);
+            } else {
+                System.out.println("Ready");
+            }
+            //System.out.println(result);
+        } catch (NullPointerException | AWTException e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+        launch();
+        System.exit(0);
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -56,36 +83,9 @@ public class HelloApplication extends Application {
         name.setText(config[0]);
         pass.setText(config[1]);
         askThread.start();
-        if (!Authenticator.online) {
+        Authenticator.checkOnline();
+        if (!Authenticator.getOnline()) {
             button.getOnAction().handle(new ActionEvent());
         }
-    }
-
-    public static void main(String[] args) {
-        try {
-            if (Authenticator.isOnline()) {
-                System.out.println("Already connected!");
-                if (SystemTray.isSupported()) {
-                    SystemTray tray = SystemTray.getSystemTray();
-                    Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
-                    TrayIcon icon = new TrayIcon(image, "Error");
-                    icon.setImageAutoSize(true);
-                    tray.add(icon);
-                    icon.displayMessage("Error", "You have already logged in!", TrayIcon.MessageType.ERROR);
-                    tray.remove(icon);
-                }
-                Authenticator.getUserIndex();
-                //System.exit(0);
-            } else {
-                System.out.println("Ready");
-            }
-            //System.out.println(result);
-        } catch (NullPointerException | AWTException e) {
-            e.printStackTrace();
-            System.exit(0);
-        } catch (IOException ignored) {
-        }
-        launch();
-        System.exit(0);
     }
 }

@@ -30,28 +30,27 @@ public class HelloController {
 
     @FXML
     protected void onLoginButtonClick() {
-        if (Authenticator.online) {
+        if (Authenticator.getOnline()) {
             if (button.getText().equals("Login")) {
                 resultText.setText("Already logged in!");
                 button.setText("Logout");
             } else if (button.getText().equals("Logout")) {
                 try {
-                    //经过测试，登出时不需要userIndex也能成功登出
-                    //为了避免不必要的麻烦，仍然传入userIndex
-                    HttpURLConnection connection = Authenticator.logout(Authenticator.userIndex);
+                    HttpURLConnection connection = Authenticator.logout();
                     if (connection == null) {
                         resultText.setText("Error!");
                         return;
                     }
                     JsonObject resultMessage = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
                     System.out.println(resultMessage.toString());
-                    String result = resultMessage.get("result").getAsString();
-                    if (result.equals("success")) {
+                    //String result = resultMessage.get("result").getAsString();
+                    resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString());
+                   /* if (result.equals("success")) {
                         resultText.setText("success!" + resultMessage.get("message").getAsString());
                         button.setText("Login");
                     } else if (result.equals("fail")) {
                         resultText.setText("fail!" + resultMessage.get("message").getAsString());
-                    }
+                    }*/
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -106,14 +105,19 @@ public class HelloController {
             JsonObject resultMessage = JsonParser.parseString(IOUtils.readText(loginConnection.getInputStream())).getAsJsonObject();
             System.out.println(resultMessage.toString());
             String result = resultMessage.get("result").getAsString();
-            if (result.equals("fail")) {
+            resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString());
+            if (result.equals("success")) {
+                Authenticator.userIndex = resultMessage.get("userIndex").getAsString();
+                Config.save(username, password);
+            }
+            /*if (result.equals("fail")) {
                 resultText.setText(resultMessage.get("message").getAsString());
             } else if (result.equals("success")) {
                 resultText.setText("Success!" + resultMessage.get("message").getAsString());
                 Authenticator.userIndex = resultMessage.get("userIndex").getAsString();
                 button.setText("Logout");
                 Config.save(username, password);
-            }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
