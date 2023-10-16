@@ -12,7 +12,8 @@
 - 点击`Login`即可登录，点击`Logout`即可登出
 - 由于状态信息更新有延迟，若您已成功登录但按钮仍显示`Login`，稍等即可
 ### 已知问题
-读取服务器返回的信息时编码错误
+
+~~读取服务器返回的信息时编码错误~~
 ### 下载
 [GitHub Release](https://github.com/RedDragon0293/EPortal/releases)
 
