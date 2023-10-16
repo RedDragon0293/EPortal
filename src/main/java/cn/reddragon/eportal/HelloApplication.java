@@ -2,7 +2,6 @@ package cn.reddragon.eportal;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -18,6 +17,7 @@ import java.io.IOException;
 public class HelloApplication extends Application {
     private static Label statusLabel;
     private static Button button;
+    private static HelloController controller;
     public static final Thread askThread = new Thread(() -> {
         while (true) {
             try {
@@ -61,7 +61,7 @@ public class HelloApplication extends Application {
     }
 
     public static void updateStatus() {
-        statusLabel.setText("Current status:" + (Authenticator.getOnline() ? "Online" : "Offline"));
+        statusLabel.setText("Current status: " + (Authenticator.getOnline() ? "Online" : "Offline"));
         if (Authenticator.getOnline()) {
             button.setText("Logout");
         } else {
@@ -73,7 +73,8 @@ public class HelloApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
         Parent root = fxmlLoader.load();
-        Scene scene = new Scene(root, 320, 240);
+        controller = fxmlLoader.getController();
+        Scene scene = new Scene(root);
         ChoiceBox box = (ChoiceBox) root.lookup("#selector");
         box.getItems().addAll("LAN", "WAN");
         box.setValue("WAN");
@@ -81,6 +82,8 @@ public class HelloApplication extends Application {
         button = (Button) root.lookup("#button");
         stage.setTitle("EPortal");
         stage.setScene(scene);
+        stage.setMinWidth(root.prefWidth(-1));
+        stage.setMinHeight(root.prefHeight(-1));
         stage.show();
         String[] config = Config.read();
         TextField name = (TextField) root.lookup("#userNameField");
@@ -91,7 +94,9 @@ public class HelloApplication extends Application {
         askThread.start();
         Authenticator.checkOnline();
         if (!Authenticator.getOnline()) {
-            button.getOnAction().handle(new ActionEvent());
+            controller.onLoginButtonClick();
+        } else {
+            controller.onRemainLabelClick();
         }
     }
 }

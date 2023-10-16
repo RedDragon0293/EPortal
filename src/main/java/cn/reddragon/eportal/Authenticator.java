@@ -27,7 +27,7 @@ public class Authenticator {
             out.flush();
             connection.connect();
             return connection;
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
@@ -50,6 +50,22 @@ public class Authenticator {
         }
     }
 
+    public static HttpURLConnection getUserInfo() {
+        String content = "userIndex=" + userIndex();
+        try {
+            HttpURLConnection connection = HttpUtils.make(ePortalUrl + "getOnlineUserInfo", "POST");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            PrintWriter out = new PrintWriter(connection.getOutputStream());
+            out.print(content);
+            out.flush();
+            connection.connect();
+            return connection;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     //经过测试，登出时不需要userIndex也能成功登出
     public static HttpURLConnection logout() {
         String content = "userIndex=" + userIndex();
@@ -62,7 +78,7 @@ public class Authenticator {
             out.flush();
             connection.connect();
             return connection;
-        } catch (Exception e) {
+        } catch (IOException e) {
             return null;
         }
     }
@@ -101,8 +117,9 @@ public class Authenticator {
                 }
                 icon.displayMessage("Error", "Connection timeout!", TrayIcon.MessageType.ERROR);
                 tray.remove(icon);
-                System.exit(0);
+                //System.exit(0);
             }
+            online = false;
         } catch (NoRouteToHostException e) {
             if (SystemTray.isSupported()) {
                 SystemTray tray = SystemTray.getSystemTray();
@@ -116,9 +133,11 @@ public class Authenticator {
                 }
                 icon.displayMessage("Error", "No Internet connection!", TrayIcon.MessageType.ERROR);
                 tray.remove(icon);
-                System.exit(0);
+                //System.exit(0);
             }
+            online = false;
         } catch (IOException e) {
+            e.printStackTrace();
             online = false;
         }
     }

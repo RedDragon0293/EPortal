@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
-<VBox alignment="CENTER" prefHeight="240.0" prefWidth="320.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cn.reddragon.eportal.HelloController">
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+      spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+      fx:controller="cn.reddragon.eportal.HelloController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
    <Label fx:id="statusLabel" text="Current status" />
+    <Label fx:id="remainLabel" text="Time remaining"/>
    <TextField fx:id="userNameField" promptText="Username" />
    <PasswordField fx:id="passwordField" promptText="Password" />
    <ChoiceBox fx:id="selector" prefWidth="150.0" />

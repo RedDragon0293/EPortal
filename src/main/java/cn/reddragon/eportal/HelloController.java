@@ -3,18 +3,22 @@ package cn.reddragon.eportal;
 import cn.reddragon.eportal.utils.HttpUtils;
 import cn.reddragon.eportal.utils.IOUtils;
 import cn.reddragon.eportal.utils.URIEncoder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 public class HelloController {
     @FXML
@@ -27,10 +31,13 @@ public class HelloController {
     private Label resultText;
     @FXML
     private Button button;
+    @FXML
+    private Label remainLabel;
 
     @FXML
     protected void onLoginButtonClick() {
         if (Authenticator.getOnline()) {
+            button.setDisable(true);
             if (button.getText().equals("Login")) {
                 resultText.setText("Already logged in!");
                 button.setText("Logout");
@@ -39,6 +46,7 @@ public class HelloController {
                     HttpURLConnection connection = Authenticator.logout();
                     if (connection == null) {
                         resultText.setText("Error!");
+                        button.setDisable(false);
                         return;
                     }
                     JsonObject resultMessage = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
@@ -55,6 +63,7 @@ public class HelloController {
                     e.printStackTrace();
                 }
             }
+            button.setDisable(false);
             return;
         }
         String username = userNameField.getText();
@@ -66,6 +75,7 @@ public class HelloController {
         if (password.isBlank()) {
             resultText.setText("Please enter your password!");
         }
+        button.setDisable(true);
         String userId = URIEncoder.encodeURI(URIEncoder.encodeURI(username));
         String pw = URIEncoder.encodeURI(URIEncoder.encodeURI(password));
         String mode = (String) selector.getValue();
@@ -99,6 +109,7 @@ public class HelloController {
             HttpURLConnection loginConnection = Authenticator.login(userId, pw, serviceString, URLEncoder.encode(URLEncoder.encode(sb.toString(), Charset.defaultCharset()), Charset.defaultCharset()));
             if (loginConnection == null) {
                 resultText.setText("Error!");
+                button.setDisable(false);
                 return;
             }
             //获取结果
@@ -109,6 +120,7 @@ public class HelloController {
             if (result.equals("success")) {
                 Authenticator.userIndex = resultMessage.get("userIndex").getAsString();
                 Config.save(username, password);
+                onRemainLabelClick();
             }
             /*if (result.equals("fail")) {
                 resultText.setText(resultMessage.get("message").getAsString());
@@ -118,8 +130,62 @@ public class HelloController {
                 button.setText("Logout");
                 Config.save(username, password);
             }*/
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        button.setDisable(false);
+    }
+
+    @FXML
+    protected void onRemainLabelClick() throws IOException {
+        if (Authenticator.getOnline()) {
+            String r = updateRemainDuration();
+            if (Objects.equals(r, "wait")) {
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(1000);
+                        Platform.runLater(this::updateRemainDuration);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
+        }
+    }
+
+    protected String updateRemainDuration() {
+        if (Authenticator.getOnline()) {
+            HttpURLConnection connection = Authenticator.getUserInfo();
+            if (connection == null) {
+                return "fail";
+            }
+            JsonObject resultJson;
+            try {
+                resultJson = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
+                System.out.println(resultJson.toString());
+                if (Objects.equals(resultJson.get("result").getAsString(), "success")) {
+                    JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
+                    int time = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
+                    int h = time / 3600;
+                    int m = (time % 3600) / 60;
+                    int s = (time % 3600) % 60;
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Time remaining: ");
+                    if (h > 0) {
+                        sb.append(h).append("h ");
+                    }
+                    if (m > 0) {
+                        sb.append(m).append("m ");
+                    }
+                    if (s > 0) {
+                        sb.append(s).append("s");
+                    }
+                    remainLabel.setText(sb.toString());
+                }
+                return resultJson.get("result").getAsString();
+            } catch (IOException e) {
+                return "fail";
+            }
+        } else return null;
     }
 }
