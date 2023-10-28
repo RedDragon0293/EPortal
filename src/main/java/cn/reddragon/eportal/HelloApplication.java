@@ -11,24 +11,22 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.awt.*;
 import java.io.IOException;
 
 public class HelloApplication extends Application {
     private static Label statusLabel;
     private static Button button;
-    private static HelloController controller;
+    public static HelloController controller;
     public static final Thread askThread = new Thread(() -> {
         while (true) {
             try {
                 Thread.sleep(2500L);
-            } catch (InterruptedException e) {
-                //throw new RuntimeException(e);
-            }
-            Platform.runLater(() -> {
                 Authenticator.checkOnline();
-                updateStatus();
-            });
+                Platform.runLater(HelloApplication::updateStatus);
+            } catch (Exception e) {
+                //throw new RuntimeException(e);
+                e.printStackTrace();
+            }
         }
     });
 
@@ -36,7 +34,7 @@ public class HelloApplication extends Application {
         Authenticator.checkOnline();
         try {
             if (Authenticator.getOnline()) {
-                System.out.println("Already connected!");
+                System.out.println("Already connected!");/*
                 if (SystemTray.isSupported()) {
                     SystemTray tray = SystemTray.getSystemTray();
                     Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
@@ -45,14 +43,14 @@ public class HelloApplication extends Application {
                     tray.add(icon);
                     icon.displayMessage("Error", "You have already logged in!", TrayIcon.MessageType.ERROR);
                     tray.remove(icon);
-                }
+                }*/
                 Authenticator.getUserIndex();
                 //System.exit(0);
             } else {
                 System.out.println("Ready");
             }
             //System.out.println(result);
-        } catch (NullPointerException | AWTException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
             System.exit(0);
         }

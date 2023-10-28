@@ -1,8 +1,8 @@
 package cn.reddragon.eportal;
 
 import cn.reddragon.eportal.utils.HttpUtils;
+import javafx.application.Platform;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
@@ -104,7 +104,14 @@ public class Authenticator {
             if (Objects.equals(redirectLocation, "Http://123.123.123.123")) {
                 online = false;
             } else online = redirectLocation.contains("http://10.96.0.155/eportal/./success.jsp?");
+            if (HelloApplication.controller != null)
+                Platform.runLater(() -> {
+                    if (HelloApplication.controller.button.isDisabled())
+                        HelloApplication.controller.resultText.setText("");
+                    HelloApplication.controller.button.setDisable(false);
+                });
         } catch (SocketTimeoutException e) {
+            /*
             if (SystemTray.isSupported()) {
                 SystemTray tray = SystemTray.getSystemTray();
                 Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
@@ -118,10 +125,16 @@ public class Authenticator {
                 icon.displayMessage("Error", "Connection timeout!", TrayIcon.MessageType.ERROR);
                 tray.remove(icon);
                 //System.exit(0);
+            }*/
+            if (HelloApplication.controller != null) {
+                Platform.runLater(() -> {
+                    HelloApplication.controller.resultText.setText("Connection timeout!");
+                    HelloApplication.controller.button.setDisable(true);
+                });
             }
             online = false;
         } catch (NoRouteToHostException e) {
-            if (SystemTray.isSupported()) {
+            /*if (SystemTray.isSupported()) {
                 SystemTray tray = SystemTray.getSystemTray();
                 Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
                 TrayIcon icon = new TrayIcon(image, "Error");
@@ -134,6 +147,12 @@ public class Authenticator {
                 icon.displayMessage("Error", "No Internet connection!", TrayIcon.MessageType.ERROR);
                 tray.remove(icon);
                 //System.exit(0);
+            }*/
+            if (HelloApplication.controller != null) {
+                Platform.runLater(() -> {
+                    HelloApplication.controller.resultText.setText("No Internet connection!");
+                    HelloApplication.controller.button.setDisable(true);
+                });
             }
             online = false;
         } catch (IOException e) {

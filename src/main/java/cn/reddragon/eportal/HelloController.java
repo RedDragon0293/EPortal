@@ -28,9 +28,9 @@ public class HelloController {
     @FXML
     private TextField passwordField;
     @FXML
-    private Label resultText;
+    public Label resultText;
     @FXML
-    private Button button;
+    public Button button;
     @FXML
     private Label remainLabel;
 
@@ -59,6 +59,9 @@ public class HelloController {
                     } else if (result.equals("fail")) {
                         resultText.setText("fail!" + resultMessage.get("message").getAsString());
                     }*/
+                    if (resultMessage.get("result").getAsString().equals("success")) {
+                        remainLabel.setText("Time remaining: No user logon");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -138,54 +141,64 @@ public class HelloController {
 
     @FXML
     protected void onRemainLabelClick() throws IOException {
-        if (Authenticator.getOnline()) {
-            String r = updateRemainDuration();
-            if (Objects.equals(r, "wait")) {
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(1000);
-                        Platform.runLater(this::updateRemainDuration);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }).start();
-            }
+
+        String r = updateRemainDuration();
+        if (Objects.equals(r, "wait")) {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000);
+                    Platform.runLater(this::updateRemainDuration);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
+
     }
 
     protected String updateRemainDuration() {
-        if (Authenticator.getOnline()) {
-            HttpURLConnection connection = Authenticator.getUserInfo();
-            if (connection == null) {
-                return "fail";
-            }
-            JsonObject resultJson;
-            try {
-                resultJson = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
-                System.out.println(resultJson.toString());
-                if (Objects.equals(resultJson.get("result").getAsString(), "success")) {
-                    JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
-                    int time = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
+        HttpURLConnection connection = Authenticator.getUserInfo();
+        if (connection == null) {
+            return "fail";
+        }
+        JsonObject resultJson;
+        try {
+            resultJson = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
+            System.out.println(resultJson.toString());
+            String r = resultJson.get("result").getAsString();
+            if (Objects.equals(r, "success")) {
+                JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
+                int time = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
+                StringBuilder sb = new StringBuilder();
+                sb.append("Time remaining: ");
+                if (time == -1) {
+                    sb.append("Infinite");
+                } else {
                     int h = time / 3600;
                     int m = (time % 3600) / 60;
                     int s = (time % 3600) % 60;
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("Time remaining: ");
                     if (h > 0) {
                         sb.append(h).append("h ");
+                        if (s > 0) {
+                            sb.append(m).append("m ");
+                            sb.append(s).append("s");
+                        } else if (m > 0) {
+                            sb.append(m).append("m");
+                        }
+                    } else {
+                        if (m > 0) {
+                            sb.append(m).append("m ");
+                        }
+                        if (s > 0) {
+                            sb.append(s).append("s");
+                        }
                     }
-                    if (m > 0) {
-                        sb.append(m).append("m ");
-                    }
-                    if (s > 0) {
-                        sb.append(s).append("s");
-                    }
-                    remainLabel.setText(sb.toString());
                 }
-                return resultJson.get("result").getAsString();
-            } catch (IOException e) {
-                return "fail";
+                remainLabel.setText(sb.toString());
             }
-        } else return null;
+            return resultJson.get("result").getAsString();
+        } catch (IOException e) {
+            return "fail";
+        }
     }
 }
