@@ -141,19 +141,23 @@ public class HelloController {
 
     @FXML
     protected void onRemainLabelClick() throws IOException {
-
-        String r = updateRemainDuration();
-        if (Objects.equals(r, "wait")) {
-            new Thread(() -> {
-                try {
-                    Thread.sleep(1000);
-                    Platform.runLater(this::updateRemainDuration);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        remainLabel.setText("Time Remaining: ");
+        new Thread(() -> {
+            try {
+                while (true) {
+                    String r = updateRemainDuration();
+                    if (Objects.equals(r, "wait")) {
+                        Thread.sleep(1000);
+                    } else if (Objects.equals(r, "success")) {
+                        break;
+                    } else {
+                        break;
+                    }
                 }
-            }).start();
-        }
-
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     protected String updateRemainDuration() {
@@ -194,7 +198,14 @@ public class HelloController {
                         }
                     }
                 }
-                remainLabel.setText(sb.toString());
+                Platform.runLater(() -> remainLabel.setText(sb.toString()));
+            } else if (!Objects.equals(r, "wait")) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Time remaining: ").append(r);
+                Platform.runLater(() -> {
+                    remainLabel.setText(sb.toString());
+                    resultText.setText(resultJson.get("message").getAsString());
+                });
             }
             return resultJson.get("result").getAsString();
         } catch (IOException e) {
