@@ -20,9 +20,12 @@ public class HelloApplication extends Application {
     public static final Thread askThread = new Thread(() -> {
         while (true) {
             try {
+                //System.out.println("Heartbeat.");
                 Thread.sleep(2500L);
                 Authenticator.checkOnline();
-                Platform.runLater(HelloApplication::updateStatus);
+                if (Authenticator.getOnline())
+                    Authenticator.updateSession();
+                Platform.runLater(HelloApplication::updateUI);
             } catch (Exception e) {
                 //throw new RuntimeException(e);
                 e.printStackTrace();
@@ -34,17 +37,8 @@ public class HelloApplication extends Application {
         Authenticator.checkOnline();
         try {
             if (Authenticator.getOnline()) {
-                System.out.println("Already connected!");/*
-                if (SystemTray.isSupported()) {
-                    SystemTray tray = SystemTray.getSystemTray();
-                    Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
-                    TrayIcon icon = new TrayIcon(image, "Error");
-                    icon.setImageAutoSize(true);
-                    tray.add(icon);
-                    icon.displayMessage("Error", "You have already logged in!", TrayIcon.MessageType.ERROR);
-                    tray.remove(icon);
-                }*/
-                Authenticator.getUserIndex();
+                System.out.println("Already connected!");
+                Authenticator.updateUserIndex();
                 //System.exit(0);
             } else {
                 System.out.println("Ready");
@@ -58,8 +52,19 @@ public class HelloApplication extends Application {
         System.exit(0);
     }
 
-    public static void updateStatus() {
-        statusLabel.setText("Current status: " + (Authenticator.getOnline() ? "Online" : "Offline"));
+    public static void updateUI() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Current status: ");
+        if (Authenticator.getOnline()) {
+            sb.append("Online ");
+            if (Authenticator.type == LoginType.CHINAMOBILE)
+                sb.append("(ChinaMobile)");
+            else
+                sb.append("(WAN)");
+        } else
+            sb.append("Offline");
+
+        statusLabel.setText(sb.toString());
         if (Authenticator.getOnline()) {
             button.setText("Logout");
         } else {
@@ -74,8 +79,8 @@ public class HelloApplication extends Application {
         controller = fxmlLoader.getController();
         Scene scene = new Scene(root);
         ChoiceBox box = (ChoiceBox) root.lookup("#selector");
-        box.getItems().addAll("LAN", "WAN");
-        box.setValue("WAN");
+        box.getItems().addAll("LAN", "WAN", "ChinaMobile");
+        //box.setValue("WAN");
         statusLabel = (Label) root.lookup("#statusLabel");
         button = (Button) root.lookup("#button");
         stage.setTitle("EPortal");
@@ -88,7 +93,8 @@ public class HelloApplication extends Application {
         TextField pass = (TextField) root.lookup("#passwordField");
         name.setText(config[0]);
         pass.setText(config[1]);
-        updateStatus();
+        box.setValue(box.getItems().get(Byte.parseByte(config[2])));
+        //updateUI();
         askThread.start();
         Authenticator.checkOnline();
         if (!Authenticator.getOnline()) {

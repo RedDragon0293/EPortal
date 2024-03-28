@@ -11,7 +11,7 @@ public class HttpUtils {
     public static HttpURLConnection make(String url, String mode) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(mode);
-        connection.setConnectTimeout(5000);
+        connection.setConnectTimeout(1000);
         connection.setReadTimeout(10000);
         connection.setDoOutput(true);
         connection.setRequestProperty("User-Agent", DEFAULT_AGENT);

@@ -1,6 +1,10 @@
 package cn.reddragon.eportal;
 
 import cn.reddragon.eportal.utils.HttpUtils;
+import cn.reddragon.eportal.utils.IOUtils;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javafx.application.Platform;
 
 import java.io.IOException;
@@ -16,6 +20,7 @@ public class Authenticator {
     public static final String ePortalUrl = "http://10.96.0.155/eportal/InterFace.do?method=";
     public static String userIndex = null;
     public static boolean online = false;
+    public static LoginType type;
 
     public static HttpURLConnection login(String username, String password, String service, String queryString) {
         String content = "userId=" + username + "&password=" + password + "&service=" + service + "&queryString=" + queryString + "&operatorPwd=" + "&operatorUserId=" + "&validcode=" + "&passwordEncrypt=false";
@@ -33,7 +38,7 @@ public class Authenticator {
         }
     }
 
-    public static void getUserIndex() {
+    public static void updateUserIndex() {
         if (!Authenticator.getOnline()) {
             userIndex = null;
         }
@@ -89,7 +94,7 @@ public class Authenticator {
 
     public static String userIndex() {
         if (userIndex == null) {
-            getUserIndex();
+            updateUserIndex();
         }
         return userIndex;
     }
@@ -111,43 +116,14 @@ public class Authenticator {
                     HelloApplication.controller.button.setDisable(false);
                 });
         } catch (SocketTimeoutException e) {
-            /*
-            if (SystemTray.isSupported()) {
-                SystemTray tray = SystemTray.getSystemTray();
-                Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
-                TrayIcon icon = new TrayIcon(image, "Error");
-                icon.setImageAutoSize(true);
-                try {
-                    tray.add(icon);
-                } catch (AWTException e1) {
-                    throw new RuntimeException(e1);
-                }
-                icon.displayMessage("Error", "Connection timeout!", TrayIcon.MessageType.ERROR);
-                tray.remove(icon);
-                //System.exit(0);
-            }*/
             if (HelloApplication.controller != null) {
                 Platform.runLater(() -> {
-                    HelloApplication.controller.resultText.setText("Connection timeout!");
+                    HelloApplication.controller.resultText.setText("Auth server connection timeout!");
                     HelloApplication.controller.button.setDisable(true);
                 });
             }
             online = false;
         } catch (NoRouteToHostException e) {
-            /*if (SystemTray.isSupported()) {
-                SystemTray tray = SystemTray.getSystemTray();
-                Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
-                TrayIcon icon = new TrayIcon(image, "Error");
-                icon.setImageAutoSize(true);
-                try {
-                    tray.add(icon);
-                } catch (AWTException e1) {
-                    throw new RuntimeException(e1);
-                }
-                icon.displayMessage("Error", "No Internet connection!", TrayIcon.MessageType.ERROR);
-                tray.remove(icon);
-                //System.exit(0);
-            }*/
             if (HelloApplication.controller != null) {
                 Platform.runLater(() -> {
                     HelloApplication.controller.resultText.setText("No Internet connection!");
@@ -158,6 +134,80 @@ public class Authenticator {
         } catch (IOException e) {
             e.printStackTrace();
             online = false;
+        }
+    }
+
+    public static void updateSession() {
+        new Thread(() -> {
+            try {
+                while (true) {
+                    String r = updateSessionInternal();
+                    if (Objects.equals(r, "wait")) {
+                        Thread.sleep(1000);
+                    } else if (Objects.equals(r, "success")) {
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private static String updateSessionInternal() {
+        HttpURLConnection connection = Authenticator.getUserInfo();
+        if (connection == null) {
+            return "fail";
+        }
+        JsonObject resultJson;
+        try {
+            resultJson = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
+            //System.out.println(resultJson.toString());
+            String r = resultJson.get("result").getAsString();
+            if (Objects.equals(r, "success")) {
+                JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
+                if (ballArray.get(1).getAsJsonObject().get("value").getAsString().equals("中国移动")) {
+                    Authenticator.type = LoginType.CHINAMOBILE;
+                    Platform.runLater(() -> HelloApplication.controller.remainLabel.setText("Time Remaining: ∞"));
+                    return r;
+                }
+                Authenticator.type = LoginType.WAN;
+                int duration = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
+                StringBuilder sb = new StringBuilder();
+                sb.append("Time remaining: ");
+                if (duration == -1) {
+                    sb.append("Infinite");
+                } else {
+                    int h = duration / 3600;
+                    int m = (duration % 3600) / 60;
+                    int s = (duration % 3600) % 60;
+                    if (h > 0) {
+                        sb.append(h).append("h ");
+                        if (s > 0) {
+                            sb.append(m).append("m ");
+                            sb.append(s).append("s");
+                        } else if (m > 0) {
+                            sb.append(m).append("m");
+                        }
+                    } else {
+                        if (m > 0) {
+                            sb.append(m).append("m ");
+                        }
+                        if (s > 0) {
+                            sb.append(s).append("s");
+                        }
+                    }
+                }
+                Platform.runLater(() -> HelloApplication.controller.remainLabel.setText(sb.toString()));
+            } else if (!Objects.equals(r, "wait")) {
+                Authenticator.type = LoginType.OFFLINE;
+                Platform.runLater(() -> HelloApplication.controller.resultText.setText(resultJson.get("message").getAsString()));
+            }
+            return r;
+        } catch (IOException e) {
+            return "fail";
         }
     }
 }

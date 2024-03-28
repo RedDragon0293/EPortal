@@ -3,10 +3,8 @@ package cn.reddragon.eportal;
 import cn.reddragon.eportal.utils.HttpUtils;
 import cn.reddragon.eportal.utils.IOUtils;
 import cn.reddragon.eportal.utils.URIEncoder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -18,7 +16,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Objects;
 
 public class HelloController {
     @FXML
@@ -32,7 +29,7 @@ public class HelloController {
     @FXML
     public Button button;
     @FXML
-    private Label remainLabel;
+    public Label remainLabel;
 
     @FXML
     protected void onLoginButtonClick() {
@@ -51,17 +48,10 @@ public class HelloController {
                     }
                     JsonObject resultMessage = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
                     System.out.println(resultMessage.toString());
-                    //String result = resultMessage.get("result").getAsString();
                     resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString());
-                   /* if (result.equals("success")) {
-                        resultText.setText("success!" + resultMessage.get("message").getAsString());
-                        button.setText("Login");
-                    } else if (result.equals("fail")) {
-                        resultText.setText("fail!" + resultMessage.get("message").getAsString());
-                    }*/
-                    if (resultMessage.get("result").getAsString().equals("success")) {
+                    /*if (resultMessage.get("result").getAsString().equals("success")) {
                         remainLabel.setText("Time remaining: No user logon");
-                    }
+                    }*/
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -87,6 +77,9 @@ public class HelloController {
             serviceString = URIEncoder.encodeURI(URIEncoder.encodeURI("校园内网服务(in-campus NET)"));
         } else if (mode.equals("WAN")) {
             serviceString = URIEncoder.encodeURI(URIEncoder.encodeURI("校园外网服务(out-campus NET)"));
+            //serviceString = URIEncoder.encodeURI(URIEncoder.encodeURI("校园网(Campus NET)"));
+        } else if (mode.equals("ChinaMobile")) {
+            serviceString = URIEncoder.encodeURI(URIEncoder.encodeURI("中国移动(CMCC NET)"));
         }
         try {
             //获取queryString
@@ -122,17 +115,8 @@ public class HelloController {
             resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString());
             if (result.equals("success")) {
                 Authenticator.userIndex = resultMessage.get("userIndex").getAsString();
-                Config.save(username, password);
-                onRemainLabelClick();
+                Config.save(username, password, (byte) selector.getItems().indexOf(mode));
             }
-            /*if (result.equals("fail")) {
-                resultText.setText(resultMessage.get("message").getAsString());
-            } else if (result.equals("success")) {
-                resultText.setText("Success!" + resultMessage.get("message").getAsString());
-                Authenticator.userIndex = resultMessage.get("userIndex").getAsString();
-                button.setText("Logout");
-                Config.save(username, password);
-            }*/
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -141,75 +125,6 @@ public class HelloController {
 
     @FXML
     protected void onRemainLabelClick() throws IOException {
-        remainLabel.setText("Time Remaining: ");
-        new Thread(() -> {
-            try {
-                while (true) {
-                    String r = updateRemainDuration();
-                    if (Objects.equals(r, "wait")) {
-                        Thread.sleep(1000);
-                    } else if (Objects.equals(r, "success")) {
-                        break;
-                    } else {
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    protected String updateRemainDuration() {
-        HttpURLConnection connection = Authenticator.getUserInfo();
-        if (connection == null) {
-            return "fail";
-        }
-        JsonObject resultJson;
-        try {
-            resultJson = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
-            System.out.println(resultJson.toString());
-            String r = resultJson.get("result").getAsString();
-            if (Objects.equals(r, "success")) {
-                JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
-                int time = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
-                StringBuilder sb = new StringBuilder();
-                sb.append("Time remaining: ");
-                if (time == -1) {
-                    sb.append("Infinite");
-                } else {
-                    int h = time / 3600;
-                    int m = (time % 3600) / 60;
-                    int s = (time % 3600) % 60;
-                    if (h > 0) {
-                        sb.append(h).append("h ");
-                        if (s > 0) {
-                            sb.append(m).append("m ");
-                            sb.append(s).append("s");
-                        } else if (m > 0) {
-                            sb.append(m).append("m");
-                        }
-                    } else {
-                        if (m > 0) {
-                            sb.append(m).append("m ");
-                        }
-                        if (s > 0) {
-                            sb.append(s).append("s");
-                        }
-                    }
-                }
-                Platform.runLater(() -> remainLabel.setText(sb.toString()));
-            } else if (!Objects.equals(r, "wait")) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Time remaining: ").append(r);
-                Platform.runLater(() -> {
-                    remainLabel.setText(sb.toString());
-                    resultText.setText(resultJson.get("message").getAsString());
-                });
-            }
-            return resultJson.get("result").getAsString();
-        } catch (IOException e) {
-            return "fail";
-        }
+        //remainLabel.setText("Time Remaining: ");
     }
 }

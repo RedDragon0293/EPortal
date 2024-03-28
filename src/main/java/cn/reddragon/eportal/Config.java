@@ -13,17 +13,17 @@ public class Config {
 
     public static String[] read() throws IOException {
         if (!saved) {
-            return new String[]{"", ""};
+            return new String[]{"", "", "1"};
         }
         try {
             FileInputStream stream = new FileInputStream(configFile);
             int length = stream.read();
             if (length == -1) {
-                return new String[]{"", ""};
+                return new String[]{"", "", "1"};
             }
             byte[] allBytes = stream.readAllBytes();
             if (allBytes.length != length) {
-                return new String[]{"", ""};
+                return new String[]{"", "", "1"};
             }
             int index = 0;
             int usernameLength = allBytes[index];
@@ -41,6 +41,7 @@ public class Config {
             int passwordLength = allBytes[index];
             index++;
             b1 = Arrays.copyOfRange(allBytes, index, index + passwordLength);
+            index += passwordLength;
             b2.clear();
             for (int i = passwordLength - 1; i >= 0; i--) {
                 b2.add((byte) ~b1[i]);
@@ -49,22 +50,23 @@ public class Config {
                 b1[i] = b2.get(i);
             }
             String password = new String(b1);
+            byte netType = allBytes[index];
             stream.close();
-            return new String[]{username, password};
+            return new String[]{username, password, String.valueOf(netType)};
         } catch (Exception e) {
             e.printStackTrace();
             FileOutputStream stream = new FileOutputStream(configFile);
             stream.close();
-            return new String[]{"", ""};
+            return new String[]{"", "", "1"};
         }
     }
 
-    public static void save(String username, String password) {
+    public static void save(String username, String password, byte netType) {
         int len1 = username.length();
         int len2 = password.length();
         try {
             FileOutputStream stream = new FileOutputStream(configFile);
-            stream.write(len1 + len2 + 2);
+            stream.write(len1 + len2 + 1 + 2);
             stream.write(len1);
             StringBuilder sb = new StringBuilder(username);
             byte[] b1 = sb.reverse().toString().getBytes();
@@ -85,6 +87,7 @@ public class Config {
             for (byte i : b2) {
                 stream.write(i);
             }
+            stream.write(netType);
             stream.flush();
             stream.close();
         } catch (IOException e) {
