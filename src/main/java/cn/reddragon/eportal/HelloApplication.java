@@ -5,17 +5,13 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class HelloApplication extends Application {
-    private static Label statusLabel;
-    private static Button button;
     public static HelloController controller;
     public static final Thread askThread = new Thread(() -> {
         while (true) {
@@ -25,7 +21,7 @@ public class HelloApplication extends Application {
                 Authenticator.checkOnline();
                 if (Authenticator.getOnline())
                     Authenticator.updateSession();
-                Platform.runLater(HelloApplication::updateUI);
+                Platform.runLater(controller::updateUI);
             } catch (Exception e) {
                 //throw new RuntimeException(e);
                 e.printStackTrace();
@@ -52,26 +48,6 @@ public class HelloApplication extends Application {
         System.exit(0);
     }
 
-    public static void updateUI() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Current status: ");
-        if (Authenticator.getOnline()) {
-            sb.append("Online ");
-            if (Authenticator.type == LoginType.CHINAMOBILE)
-                sb.append("(ChinaMobile)");
-            else
-                sb.append("(WAN)");
-        } else
-            sb.append("Offline");
-
-        statusLabel.setText(sb.toString());
-        if (Authenticator.getOnline()) {
-            button.setText("Logout");
-        } else {
-            button.setText("Login");
-        }
-    }
-
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
@@ -80,9 +56,6 @@ public class HelloApplication extends Application {
         Scene scene = new Scene(root);
         ChoiceBox box = (ChoiceBox) root.lookup("#selector");
         box.getItems().addAll("LAN", "WAN", "ChinaMobile");
-        //box.setValue("WAN");
-        statusLabel = (Label) root.lookup("#statusLabel");
-        button = (Button) root.lookup("#button");
         stage.setTitle("EPortal");
         stage.setScene(scene);
         stage.setMinWidth(root.prefWidth(-1));
@@ -99,8 +72,6 @@ public class HelloApplication extends Application {
         Authenticator.checkOnline();
         if (!Authenticator.getOnline()) {
             controller.onLoginButtonClick();
-        } else {
-            controller.onRemainLabelClick();
         }
     }
 }

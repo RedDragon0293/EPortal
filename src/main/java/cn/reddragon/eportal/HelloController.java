@@ -21,15 +21,37 @@ public class HelloController {
     @FXML
     public ChoiceBox selector;
     @FXML
-    private TextField userNameField;
-    @FXML
-    private TextField passwordField;
-    @FXML
     public Label resultText;
     @FXML
     public Button button;
     @FXML
     public Label remainLabel;
+    @FXML
+    public Label statusLabel;
+    @FXML
+    public Label user;
+    @FXML
+    private TextField userNameField;
+    @FXML
+    private TextField passwordField;
+
+    public void updateUI() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Status: ");
+        if (Authenticator.getOnline()) {
+            button.setText("Logout");
+            sb.append("Online ");
+            if (Authenticator.type == LoginType.CHINAMOBILE)
+                sb.append("(ChinaMobile)");
+            else
+                sb.append("(WAN)");
+        } else {
+            button.setText("Login");
+            sb.append("Offline");
+            user.setText("User: null");
+        }
+        statusLabel.setText(sb.toString());
+    }
 
     @FXML
     protected void onLoginButtonClick() {
@@ -49,9 +71,6 @@ public class HelloController {
                     JsonObject resultMessage = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
                     System.out.println(resultMessage.toString());
                     resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString());
-                    /*if (resultMessage.get("result").getAsString().equals("success")) {
-                        remainLabel.setText("Time remaining: No user logon");
-                    }*/
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -121,10 +140,5 @@ public class HelloController {
             e.printStackTrace();
         }
         button.setDisable(false);
-    }
-
-    @FXML
-    protected void onRemainLabelClick() throws IOException {
-        //remainLabel.setText("Time Remaining: ");
     }
 }
