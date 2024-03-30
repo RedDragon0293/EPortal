@@ -10,6 +10,12 @@ name: Java CI with Gradle
 on:
   push:
     branches: [ "master" ]
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+      - '.github/**'
+      - '.idea/**'
+      - '!.github/workflows/**'
   workflow_dispatch:
 
 jobs:
@@ -34,6 +40,12 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: EPortal-${{ github.event.head_commit.id }}
+        path: build/libs/shadow
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
