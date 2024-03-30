@@ -41,9 +41,6 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
-    - name: Shadow
-      run: ./gradlew shadowJar
-
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:

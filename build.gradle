@@ -4,14 +4,16 @@ buildscript {
     }
     dependencies {
         classpath 'io.github.fvarrui:javapackager:1.7.4'
+        //classpath group: 'com.github.jengelman.gradle.plugins', name: 'shadow', version: '4.0.4'
     }
 }
 
 plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java'
     id 'application'
     id 'org.javamodularity.moduleplugin' version '1.8.12'
-    id 'org.beryx.jlink' version '2.25.0'
+    //id 'org.beryx.jlink' version '2.25.0'
     id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
@@ -78,12 +80,23 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'cn.reddragon.eportal'
-    mainClass = 'cn.reddragon.eportal.HelloApplication'
+    mainClass = 'cn.reddragon.eportal.Main'
 }
 
 javafx {
     version = '17.0.6'
     modules = ['javafx.controls', 'javafx.fxml']
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'cn.reddragon.eportal.Main'
+    }
+}
+shadowJar {
+    archiveClassifier.set('')
+    archiveVersion.set('')
+    destinationDirectory.set(file('build/libs/shadow'))
 }
 
 dependencies {
@@ -98,16 +111,4 @@ dependencies {
 
 test {
     useJUnitPlatform()
-}
-
-jlink {
-    imageZip = project.file("${buildDir}/distributions/app-${javafx.platform.classifier}.zip")
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-    launcher {
-        name = 'app'
-    }
-}
-
-jlinkZip {
-    group = 'distribution'
 }
