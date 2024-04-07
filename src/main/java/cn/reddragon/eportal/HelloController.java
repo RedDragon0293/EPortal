@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 public class HelloController {
     @FXML
@@ -41,10 +42,19 @@ public class HelloController {
         if (Authenticator.getOnline()) {
             button.setText("Logout");
             sb.append("Online ");
+            for (LoginType it : LoginType.values()) {
+                if (Objects.equals(it, Authenticator.type)) {
+                    sb.append('(');
+                    sb.append(it.displayName);
+                    sb.append(')');
+                }
+            }
+            /*
             if (Authenticator.type == LoginType.CHINAMOBILE)
                 sb.append("(ChinaMobile)");
             else
                 sb.append("(WAN)");
+            */
         } else {
             button.setText("Login");
             sb.append("Offline");
@@ -92,6 +102,7 @@ public class HelloController {
         String pw = URIEncoder.encodeURI(URIEncoder.encodeURI(password));
         String mode = (String) selector.getValue();
         String serviceString = "";
+        /*
         if (mode.equals("LAN")) {
             serviceString = URIEncoder.encodeURI(URIEncoder.encodeURI("校园内网服务(in-campus NET)"));
         } else if (mode.equals("WAN")) {
@@ -99,6 +110,13 @@ public class HelloController {
             //serviceString = URIEncoder.encodeURI(URIEncoder.encodeURI("校园网(Campus NET)"));
         } else if (mode.equals("ChinaMobile")) {
             serviceString = URIEncoder.encodeURI(URIEncoder.encodeURI("中国移动(CMCC NET)"));
+        }
+        */
+        for (LoginType it : LoginType.values()) {
+            if (Objects.equals(it.displayName, mode)) {
+                serviceString = URIEncoder.encodeURI(URIEncoder.encodeURI(it.authName));
+                break;
+            }
         }
         try {
             //获取queryString

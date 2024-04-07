@@ -167,12 +167,18 @@ public class Authenticator {
             //System.out.println(resultJson.toString());
             String r = resultJson.get("result").getAsString();
             if (Objects.equals(r, "success")) {
+                //更新userIndex
+                Authenticator.userIndex = resultJson.get("userIndex").getAsString();
                 // 获取当前用户
                 Platform.runLater(() -> HelloApplication.controller.user.setText("User: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
                 // 获取运营商、剩余时间
                 JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
-                if (ballArray.get(1).getAsJsonObject().get("value").getAsString().equals("中国移动")) {
-                    Authenticator.type = LoginType.CHINAMOBILE;
+                if (ballArray.get(1).getAsJsonObject().get("displayName").getAsString().equals("我的运营商")) {
+                    for (LoginType it : LoginType.values()) {
+                        if (it.authName.contains(ballArray.get(1).getAsJsonObject().get("value").getAsString())) {
+                            Authenticator.type = it;
+                        }
+                    }
                     Platform.runLater(() -> HelloApplication.controller.remainLabel.setText("Time remaining: ∞"));
                     return r;
                 }
@@ -180,6 +186,7 @@ public class Authenticator {
                 int duration = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
                 StringBuilder sb = new StringBuilder();
                 sb.append("Time remaining: ");
+                //计算剩余时间
                 int h = duration / 3600;
                 int m = (duration % 3600) / 60;
                 int s = (duration % 3600) % 60;
@@ -201,7 +208,7 @@ public class Authenticator {
                 }
                 Platform.runLater(() -> HelloApplication.controller.remainLabel.setText(sb.toString()));
             } else if (!Objects.equals(r, "wait")) {
-                Authenticator.type = LoginType.OFFLINE;
+                //Authenticator.type = LoginType.OFFLINE;
                 Platform.runLater(() -> HelloApplication.controller.resultText.setText(resultJson.get("message").getAsString()));
             }
             return r;

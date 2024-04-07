@@ -10,6 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class HelloApplication extends Application {
     public static HelloController controller;
@@ -54,8 +55,13 @@ public class HelloApplication extends Application {
         Parent root = fxmlLoader.load();
         controller = fxmlLoader.getController();
         Scene scene = new Scene(root);
-        ChoiceBox box = (ChoiceBox) root.lookup("#selector");
-        box.getItems().addAll("LAN", "WAN", "ChinaMobile");
+        ChoiceBox<String> box = (ChoiceBox<String>) root.lookup("#selector");
+        //box.getItems().addAll("LAN", "WAN", "ChinaMobile");
+        for (LoginType it : LoginType.values()) {
+            if (!Objects.equals(it.displayName, "")) {
+                box.getItems().add(it.displayName);
+            }
+        }
         stage.setTitle("EPortal");
         stage.setScene(scene);
         stage.setMinWidth(root.prefWidth(-1));

@@ -44,7 +44,7 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: EPortal-${{ github.event.head_commit.id }}
+        name: EPortal
         path: build/libs/shadow
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
