@@ -18,11 +18,9 @@ public class HelloApplication extends Application {
         while (true) {
             try {
                 //System.out.println("Heartbeat.");
-                Thread.sleep(2500L);
-                Authenticator.checkOnline();
-                if (Authenticator.getOnline())
-                    Authenticator.updateSession();
+                Authenticator.updateStatus();
                 Platform.runLater(controller::updateUI);
+                Thread.sleep(5000L);
             } catch (Exception e) {
                 //throw new RuntimeException(e);
                 e.printStackTrace();
@@ -33,7 +31,7 @@ public class HelloApplication extends Application {
     public static void main(String[] args) {
         Authenticator.checkOnline();
         try {
-            if (Authenticator.getOnline()) {
+            if (Authenticator.online) {
                 System.out.println("Already connected!");
                 Authenticator.updateUserIndex();
                 //System.exit(0);
@@ -76,7 +74,7 @@ public class HelloApplication extends Application {
         //updateUI();
         askThread.start();
         Authenticator.checkOnline();
-        if (!Authenticator.getOnline()) {
+        if (!Authenticator.online) {
             controller.onLoginButtonClick();
         }
     }
