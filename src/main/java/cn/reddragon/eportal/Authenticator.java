@@ -20,7 +20,7 @@ public class Authenticator {
     public static final String ePortalUrl = "http://10.96.0.155/eportal/InterFace.do?method=";
     public static String userIndex = null;
     public static boolean online = false;
-    public static LoginType type;
+    public static LoginType type = null;
     public static boolean error = false;
 
     public static HttpURLConnection login(String username, String password, String service, String queryString) {
@@ -150,6 +150,8 @@ public class Authenticator {
         if (online) {
             updateUserIndex();
             updateSession();
+        } else {
+            Authenticator.type = null;
         }
     }
 

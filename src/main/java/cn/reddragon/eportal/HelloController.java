@@ -44,6 +44,9 @@ public class HelloController {
         if (Authenticator.online) {
             button.setText("Logout");
             sb.append("Online ");
+            if (Authenticator.type == null) {
+                sb.append("(...)");
+            } else
             for (LoginType it : LoginType.values()) {
                 if (Objects.equals(it, Authenticator.type)) {
                     sb.append('(');
