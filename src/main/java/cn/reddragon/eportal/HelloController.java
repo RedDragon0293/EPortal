@@ -47,14 +47,14 @@ public class HelloController {
             if (Authenticator.type == null) {
                 sb.append("(...)");
             } else
-            for (LoginType it : LoginType.values()) {
-                if (Objects.equals(it, Authenticator.type)) {
-                    sb.append('(');
-                    sb.append(it.displayName);
-                    sb.append(')');
-                    break;
+                for (LoginType it : LoginType.values()) {
+                    if (Objects.equals(it, Authenticator.type)) {
+                        sb.append('(');
+                        sb.append(it.displayName);
+                        sb.append(')');
+                        break;
+                    }
                 }
-            }
         } else {
             button.setText("Login");
             sb.append("Offline");
@@ -73,8 +73,9 @@ public class HelloController {
                 button.setText("Logout");
             } else if (button.getText().equals("Logout")) {
                 new Thread(() -> {
+                    HttpURLConnection connection = null;
                     try {
-                        HttpURLConnection connection = Authenticator.logout();
+                        connection = Authenticator.logout();
                         if (connection == null) {
                             Platform.runLater(() -> {
                                 resultText.setText("Error!");
@@ -90,6 +91,10 @@ public class HelloController {
                     } catch (Exception e) {
                         e.printStackTrace();
                         Platform.runLater(() -> resultText.setText(e.getMessage()));
+                    } finally {
+                        if (connection != null) {
+                            connection.disconnect();
+                        }
                     }
                     Platform.runLater(() -> button.setDisable(false));
                 }).start();
