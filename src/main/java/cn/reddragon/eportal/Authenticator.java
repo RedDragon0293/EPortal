@@ -10,7 +10,7 @@ import javafx.application.Platform;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.net.NoRouteToHostException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
@@ -117,23 +117,25 @@ public class Authenticator {
             error = false;
             if (connection.getResponseCode() != HttpURLConnection.HTTP_MOVED_TEMP) {
                 if (HelloApplication.controller != null) {
-                    Platform.runLater(() -> HelloApplication.controller.resultText.setText("Auth server error!"));
+                    Platform.runLater(() -> HelloApplication.controller.resultText.setText("Error: Auth server error!"));
                     error = true;
                 }
             }
         } catch (SocketTimeoutException e) {
+            System.err.println(e.getMessage());
             if (HelloApplication.controller != null) {
                 Platform.runLater(() -> {
-                    HelloApplication.controller.resultText.setText("Auth server connection timeout!");
+                    HelloApplication.controller.resultText.setText("Error: Auth server connection timeout!");
                     error = true;
                     //HelloApplication.controller.button.setDisable(true);
                 });
             }
             online = false;
-        } catch (NoRouteToHostException e) {
+        } catch (SocketException e) {
+            System.err.println(e.getMessage());
             if (HelloApplication.controller != null) {
                 Platform.runLater(() -> {
-                    HelloApplication.controller.resultText.setText("No Internet connection!");
+                    HelloApplication.controller.resultText.setText("Error: No Internet connection!");
                     error = true;
                     //HelloApplication.controller.button.setDisable(true);
                 });

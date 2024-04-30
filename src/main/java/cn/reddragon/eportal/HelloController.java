@@ -62,6 +62,7 @@ public class HelloController {
             remainLabel.setText("Time remaining:");
         }
         statusLabel.setText(sb.toString());
+        button.setDisable(Authenticator.error);
     }
 
     @FXML
