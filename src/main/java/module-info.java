@@ -9,4 +9,8 @@ module cn.reddragon.eportal {
 
     opens cn.reddragon.eportal to javafx.fxml;
     exports cn.reddragon.eportal;
+    exports cn.reddragon.eportal.controller;
+    opens cn.reddragon.eportal.controller to javafx.fxml;
+    exports cn.reddragon.eportal.utils;
+    opens cn.reddragon.eportal.utils to javafx.fxml;
 }

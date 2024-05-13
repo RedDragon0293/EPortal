@@ -1,4 +1,4 @@
-package cn.reddragon.eportal;
+package cn.reddragon.eportal.utils;
 
 public enum LoginType {
     WAN("校园外网服务(out-campus NET)", "CampusNet"),

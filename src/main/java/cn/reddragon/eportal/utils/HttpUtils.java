@@ -12,7 +12,7 @@ public class HttpUtils {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(mode);
         connection.setConnectTimeout(1000);
-        connection.setReadTimeout(10000);
+        connection.setReadTimeout(1000);
         connection.setDoOutput(true);
         connection.setRequestProperty("User-Agent", DEFAULT_AGENT);
         return connection;

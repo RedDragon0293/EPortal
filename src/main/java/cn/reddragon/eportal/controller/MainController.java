@@ -1,8 +1,6 @@
-package cn.reddragon.eportal;
+package cn.reddragon.eportal.controller;
 
-import cn.reddragon.eportal.utils.HttpUtils;
-import cn.reddragon.eportal.utils.IOUtils;
-import cn.reddragon.eportal.utils.URIEncoder;
+import cn.reddragon.eportal.utils.*;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
@@ -20,7 +18,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class HelloController {
+public class MainController {
     @FXML
     public ChoiceBox<String> selector;
     @FXML
@@ -42,7 +40,6 @@ public class HelloController {
         StringBuilder sb = new StringBuilder();
         sb.append("Status: ");
         if (Authenticator.online) {
-            button.setText("Logout");
             sb.append("Online ");
             if (Authenticator.type == null) {
                 sb.append("(...)");
@@ -56,17 +53,33 @@ public class HelloController {
                     }
                 }
         } else {
-            button.setText("Login");
             sb.append("Offline");
-            user.setText("User: null");
-            remainLabel.setText("Time remaining:");
         }
-        statusLabel.setText(sb.toString());
-        button.setDisable(Authenticator.error);
+        if (Platform.isFxApplicationThread()) {
+            statusLabel.setText(sb.toString());
+            button.setDisable(Authenticator.error);
+            if (Authenticator.online)
+                button.setText("Logout");
+            else {
+                button.setText("Login");
+                user.setText("User: null");
+                remainLabel.setText("Time remaining:");
+            }
+        } else Platform.runLater(() -> {
+            statusLabel.setText(sb.toString());
+            button.setDisable(Authenticator.error);
+            if (Authenticator.online)
+                button.setText("Logout");
+            else {
+                button.setText("Login");
+                user.setText("User: null");
+                remainLabel.setText("Time remaining:");
+            }
+        });
     }
 
     @FXML
-    protected void onLoginButtonClick() {
+    public void onLoginButtonClick() {
         button.setDisable(true);
         if (Authenticator.online) {
             if (button.getText().equals("Login")) {
@@ -161,9 +174,11 @@ public class HelloController {
                 e.printStackTrace();
                 Platform.runLater(() -> resultText.setText(e.getMessage()));
             }
-            Platform.runLater(() -> button.setDisable(false));
             Authenticator.updateStatus();
-            Platform.runLater(this::updateUI);
+            Platform.runLater(() -> {
+                button.setDisable(false);
+                updateUI();
+            });
         }).start();
     }
 }

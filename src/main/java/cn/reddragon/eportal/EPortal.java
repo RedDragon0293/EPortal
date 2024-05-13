@@ -1,5 +1,9 @@
 package cn.reddragon.eportal;
 
+import cn.reddragon.eportal.controller.MainController;
+import cn.reddragon.eportal.utils.Authenticator;
+import cn.reddragon.eportal.utils.Config;
+import cn.reddragon.eportal.utils.LoginType;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -12,8 +16,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
 
-public class HelloApplication extends Application {
-    public static HelloController controller;
+public class EPortal extends Application {
+    public static MainController controller;
     public static final Thread askThread = new Thread(() -> {
         while (true) {
             try {
@@ -49,7 +53,7 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(EPortal.class.getResource("hello-view.fxml"));
         Parent root = fxmlLoader.load();
         controller = fxmlLoader.getController();
         Scene scene = new Scene(root);

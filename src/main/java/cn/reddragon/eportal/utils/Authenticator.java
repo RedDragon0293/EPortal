@@ -1,7 +1,6 @@
-package cn.reddragon.eportal;
+package cn.reddragon.eportal.utils;
 
-import cn.reddragon.eportal.utils.HttpUtils;
-import cn.reddragon.eportal.utils.IOUtils;
+import cn.reddragon.eportal.EPortal;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -17,7 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class Authenticator {
-    public static final String ePortalUrl = "http://10.96.0.155/eportal/InterFace.do?method=";
+    public static final String ePortalUrl = "http://10.96.0.155/eportal";
+    public static final String ePortalInterFaceUrl = ePortalUrl + "/InterFace.do?method=";
     public static String userIndex = null;
     public static boolean online = false;
     public static LoginType type = null;
@@ -26,7 +26,7 @@ public class Authenticator {
     public static HttpURLConnection login(String username, String password, String service, String queryString) {
         String content = "userId=" + username + "&password=" + password + "&service=" + service + "&queryString=" + queryString + "&operatorPwd=" + "&operatorUserId=" + "&validcode=" + "&passwordEncrypt=false";
         try {
-            HttpURLConnection connection = HttpUtils.make(ePortalUrl + "login", "POST");
+            HttpURLConnection connection = HttpUtils.make(ePortalInterFaceUrl + "login", "POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             PrintWriter out = new PrintWriter(connection.getOutputStream());
             out.print(content);
@@ -44,7 +44,7 @@ public class Authenticator {
             userIndex = null;
         }
         try {
-            HttpURLConnection connection = HttpUtils.make("http://10.96.0.155/eportal/redirectortosuccess.jsp", "GET");
+            HttpURLConnection connection = HttpUtils.make(ePortalUrl + "/redirectortosuccess.jsp", "GET");
             connection.setInstanceFollowRedirects(false);
             connection.connect();
             Map<String, List<String>> result = connection.getHeaderFields();
@@ -59,7 +59,7 @@ public class Authenticator {
     public static HttpURLConnection getUserInfo() {
         String content = "userIndex=" + userIndex();
         try {
-            HttpURLConnection connection = HttpUtils.make(ePortalUrl + "getOnlineUserInfo", "POST");
+            HttpURLConnection connection = HttpUtils.make(ePortalInterFaceUrl + "getOnlineUserInfo", "POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             PrintWriter out = new PrintWriter(connection.getOutputStream());
             out.print(content);
@@ -76,9 +76,9 @@ public class Authenticator {
     public static HttpURLConnection logout() {
         String content = "userIndex=" + userIndex();
         try {
-            HttpURLConnection connection = HttpUtils.make(ePortalUrl + "logout", "POST");
+            HttpURLConnection connection = HttpUtils.make(ePortalInterFaceUrl + "logout", "POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            connection.setRequestProperty("Referer", "http://10.96.0.155/eportal/success.jsp?userIndex=" + userIndex());
+            connection.setRequestProperty("Referer", ePortalUrl + "/success.jsp?userIndex=" + userIndex());
             PrintWriter out = new PrintWriter(connection.getOutputStream());
             out.print(content);
             out.flush();
@@ -98,50 +98,42 @@ public class Authenticator {
 
     public static void checkOnline() {
         try {
-            HttpURLConnection connection = HttpUtils.make("http://10.96.0.155/eportal/redirectortosuccess.jsp", "GET");
+            HttpURLConnection connection = HttpUtils.make(ePortalUrl + "/redirectortosuccess.jsp", "GET");
             connection.setInstanceFollowRedirects(false);
             connection.connect();
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_MOVED_TEMP) {
+                if (EPortal.controller != null) {
+                    Platform.runLater(() -> EPortal.controller.resultText.setText("Error: Auth server error!"));
+                    error = true;
+                }
+                return;
+            }
             Map<String, List<String>> result = connection.getHeaderFields();
             String redirectLocation = result.get("Location").get(0);
             // 判断是否在线
-            if (Objects.equals(redirectLocation, "Http://123.123.123.123")) {
+            if ("Http://123.123.123.123".equalsIgnoreCase(redirectLocation)) {
                 online = false;
-            } else online = redirectLocation.contains("http://10.96.0.155/eportal/./success.jsp?");
+            } else online = redirectLocation.contains(ePortalUrl + "/./success.jsp?");
 
-            if (HelloApplication.controller != null)
-                Platform.runLater(() -> {
-                    if (error)
-                        HelloApplication.controller.resultText.setText("");
-                    //HelloApplication.controller.button.setDisable(false);
-                });
-            error = false;
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_MOVED_TEMP) {
-                if (HelloApplication.controller != null) {
-                    Platform.runLater(() -> HelloApplication.controller.resultText.setText("Error: Auth server error!"));
-                    error = true;
-                }
+            if (EPortal.controller != null && error) {
+                Platform.runLater(() -> EPortal.controller.resultText.setText(""));
+                error = false;
             }
         } catch (SocketTimeoutException e) {
             System.err.println(e.getMessage());
-            if (HelloApplication.controller != null) {
-                Platform.runLater(() -> {
-                    HelloApplication.controller.resultText.setText("Error: Auth server connection timeout!");
-                    error = true;
-                    //HelloApplication.controller.button.setDisable(true);
-                });
+            if (EPortal.controller != null) {
+                Platform.runLater(() -> EPortal.controller.resultText.setText("Error: Auth server connection timeout!"));
+                error = true;
             }
             online = false;
         } catch (SocketException e) {
             System.err.println(e.getMessage());
-            if (HelloApplication.controller != null) {
-                Platform.runLater(() -> {
-                    HelloApplication.controller.resultText.setText("Error: No Internet connection!");
-                    error = true;
-                    //HelloApplication.controller.button.setDisable(true);
-                });
+            if (EPortal.controller != null) {
+                Platform.runLater(() -> EPortal.controller.resultText.setText("Error: No Internet connection!"));
+                error = true;
             }
             online = false;
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             e.printStackTrace();
             online = false;
         }
@@ -165,6 +157,7 @@ public class Authenticator {
                     if (Objects.equals(r, "wait")) {
                         Thread.sleep(1000);
                     } else if (Objects.equals(r, "success")) {
+                        EPortal.controller.updateUI();
                         break;
                     } else {
                         break;
@@ -188,7 +181,7 @@ public class Authenticator {
             String r = resultJson.get("result").getAsString();
             if (Objects.equals(r, "success")) {
                 // 设置当前用户
-                Platform.runLater(() -> HelloApplication.controller.user.setText("User: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
+                Platform.runLater(() -> EPortal.controller.user.setText("User: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
                 // 设置运营商、剩余时间
                 JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
                 if (ballArray.get(1).getAsJsonObject().get("displayName").getAsString().equals("我的运营商")) {
@@ -197,7 +190,7 @@ public class Authenticator {
                             Authenticator.type = it;
                         }
                     }
-                    Platform.runLater(() -> HelloApplication.controller.remainLabel.setText("Time remaining: ∞"));
+                    Platform.runLater(() -> EPortal.controller.remainLabel.setText("Time remaining: ∞"));
                     return r;
                 }
                 Authenticator.type = LoginType.WAN;
@@ -224,10 +217,10 @@ public class Authenticator {
                         sb.append(s).append("s");
                     }
                 }
-                Platform.runLater(() -> HelloApplication.controller.remainLabel.setText(sb.toString()));
+                Platform.runLater(() -> EPortal.controller.remainLabel.setText(sb.toString()));
             } else if (!Objects.equals(r, "wait")) {
                 //Authenticator.type = LoginType.OFFLINE;
-                Platform.runLater(() -> HelloApplication.controller.resultText.setText(resultJson.get("message").getAsString()));
+                Platform.runLater(() -> EPortal.controller.resultText.setText(resultJson.get("message").getAsString()));
             }
             return r;
         } catch (IOException e) {
