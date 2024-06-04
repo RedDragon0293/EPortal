@@ -1,5 +1,6 @@
-package cn.reddragon.eportal.controller;
+package cn.reddragon.eportal.controllers;
 
+import cn.reddragon.eportal.account.AccountManager;
 import cn.reddragon.eportal.utils.*;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -168,7 +169,9 @@ public class MainController {
                 Platform.runLater(() -> resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString()));
                 if (result.equals("success")) {
                     Authenticator.userIndex = resultMessage.get("userIndex").getAsString();
-                    Config.save(username, password, (byte) selector.getItems().indexOf(mode));
+                    //ConfigManager.save(username, password, (byte) selector.getItems().indexOf(mode));
+                    AccountManager.accounts.clear();
+                    AccountManager.addAccount(username, password);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

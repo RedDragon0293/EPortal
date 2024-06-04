@@ -1,8 +1,9 @@
 package cn.reddragon.eportal;
 
-import cn.reddragon.eportal.controller.MainController;
+import cn.reddragon.eportal.account.AccountManager;
+import cn.reddragon.eportal.config.ConfigManager;
+import cn.reddragon.eportal.controllers.MainController;
 import cn.reddragon.eportal.utils.Authenticator;
-import cn.reddragon.eportal.utils.Config;
 import cn.reddragon.eportal.utils.LoginType;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -36,6 +37,7 @@ public class EPortal extends Application {
     });
 
     public static void main(String[] args) {
+        askThread.setDaemon(true);
         Authenticator.checkOnline();
         try {
             if (Authenticator.online) {
@@ -51,11 +53,13 @@ public class EPortal extends Application {
             System.exit(0);
         }
         launch();
-        System.exit(0);
+        ConfigManager.saveConfigs();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void start(Stage stage) throws IOException {
+        Thread.currentThread().setName("EPortal Main");
         FXMLLoader fxmlLoader = new FXMLLoader(EPortal.class.getResource("hello-view.fxml"));
         Parent root = fxmlLoader.load();
         controller = fxmlLoader.getController();
@@ -71,18 +75,23 @@ public class EPortal extends Application {
         stage.setScene(scene);
         stage.setMinWidth(root.prefWidth(-1));
         stage.setMinHeight(root.prefHeight(-1));
-        stage.show();
-        String[] config = Config.read();
+        //String[] config = ConfigManager.read();
+        ConfigManager.loadConfigs();
         TextField name = (TextField) root.lookup("#userNameField");
         TextField pass = (TextField) root.lookup("#passwordField");
-        name.setText(config[0]);
-        pass.setText(config[1]);
-        box.setValue(box.getItems().get(Byte.parseByte(config[2])));
+        //name.setText(config[0]);
+        //pass.setText(config[1]);
+        if (!AccountManager.accounts.isEmpty()) {
+            name.setText(AccountManager.accounts.get(0).getName());
+            pass.setText(AccountManager.accounts.get(0).getPassword());
+        }
+        //box.setValue(box.getItems().get(Byte.parseByte(config[2])));
         //updateUI();
         askThread.start();
         Authenticator.checkOnline();
         if (!Authenticator.online) {
             controller.onLoginButtonClick();
         }
+        stage.show();
     }
 }
