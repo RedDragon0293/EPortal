@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
@@ -9,19 +8,15 @@
     <children>
         <MenuBar maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
             <menus>
-                <Menu mnemonicParsing="false" text="File">
+                <Menu mnemonicParsing="false" text="设置">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Close"/>
+                        <CheckMenuItem mnemonicParsing="false" text="自动重连"/>
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
+                <Menu mnemonicParsing="false" text="帮助">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Delete"/>
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="About"/>
+                        <MenuItem mnemonicParsing="false" text="日志"/>
+                        <MenuItem mnemonicParsing="false" text="关于"/>
                     </items>
                 </Menu>
             </menus>
@@ -30,13 +25,13 @@
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
             </padding>
-            <Label fx:id="statusLabel" text="Status:"/>
-            <Label fx:id="user" text="User: null"/>
-            <Label fx:id="remainLabel" text="Time remaining: No user logon"/>
-            <TextField fx:id="userNameField" promptText="Username"/>
-            <PasswordField fx:id="passwordField" promptText="Password"/>
+            <Label fx:id="statusLabel" text="状态:"/>
+            <Label fx:id="user" text="当前用户: null"/>
+            <Label fx:id="remainLabel" text="剩余时长: 未登录"/>
+            <TextField fx:id="userNameField" promptText="用户名"/>
+            <PasswordField fx:id="passwordField" promptText="密码"/>
             <ChoiceBox fx:id="selector" prefWidth="150.0"/>
-            <Button fx:id="button" onAction="#onLoginButtonClick" text="Login"/>
+            <Button fx:id="button" onAction="#onLoginButtonClick" text="登录"/>
 
             <Label fx:id="resultText" textAlignment="CENTER"/>
         </VBox>

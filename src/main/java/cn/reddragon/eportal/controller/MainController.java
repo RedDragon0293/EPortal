@@ -38,9 +38,9 @@ public class MainController {
 
     public void updateUI() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Status: ");
+        sb.append("状态: ");
         if (Authenticator.online) {
-            sb.append("Online ");
+            sb.append("在线 ");
             if (Authenticator.type == null) {
                 sb.append("(...)");
             } else
@@ -53,27 +53,27 @@ public class MainController {
                     }
                 }
         } else {
-            sb.append("Offline");
+            sb.append("离线");
         }
         if (Platform.isFxApplicationThread()) {
             statusLabel.setText(sb.toString());
             button.setDisable(Authenticator.error);
             if (Authenticator.online)
-                button.setText("Logout");
+                button.setText("登出");
             else {
-                button.setText("Login");
-                user.setText("User: null");
-                remainLabel.setText("Time remaining:");
+                button.setText("登录");
+                user.setText("当前用户: null");
+                remainLabel.setText("剩余时长:");
             }
         } else Platform.runLater(() -> {
             statusLabel.setText(sb.toString());
             button.setDisable(Authenticator.error);
             if (Authenticator.online)
-                button.setText("Logout");
+                button.setText("登出");
             else {
-                button.setText("Login");
-                user.setText("User: null");
-                remainLabel.setText("Time remaining:");
+                button.setText("登录");
+                user.setText("当前用户: null");
+                remainLabel.setText("剩余时长:");
             }
         });
     }
@@ -82,10 +82,10 @@ public class MainController {
     public void onLoginButtonClick() {
         button.setDisable(true);
         if (Authenticator.online) {
-            if (button.getText().equals("Login")) {
-                resultText.setText("Already logged in!");
-                button.setText("Logout");
-            } else if (button.getText().equals("Logout")) {
+            if (button.getText().equals("登录")) {
+                resultText.setText("当前设备已登录!");
+                button.setText("登出");
+            } else if (button.getText().equals("登出")) {
                 new Thread(() -> {
                     HttpURLConnection connection = null;
                     try {
@@ -119,12 +119,12 @@ public class MainController {
         }
         String username = userNameField.getText();
         if (username.isBlank()) {
-            resultText.setText("Please enter your username!");
+            resultText.setText("请输入用户名!");
             return;
         }
         String password = passwordField.getText();
         if (password.isBlank()) {
-            resultText.setText("Please enter your password!");
+            resultText.setText("请输入密码!");
             return;
         }
         String userId = URIEncoder.encodeURI(URIEncoder.encodeURI(username));

@@ -24,7 +24,10 @@ public class EPortal extends Application {
                 //System.out.println("Heartbeat.");
                 Authenticator.updateStatus();
                 Platform.runLater(controller::updateUI);
-                Thread.sleep(5000L);
+                if (Authenticator.error)
+                    Thread.sleep(1000L);
+                else
+                    Thread.sleep(5000L);
             } catch (Exception e) {
                 //throw new RuntimeException(e);
                 e.printStackTrace();

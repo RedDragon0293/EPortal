@@ -103,7 +103,7 @@ public class Authenticator {
             connection.connect();
             if (connection.getResponseCode() != HttpURLConnection.HTTP_MOVED_TEMP) {
                 if (EPortal.controller != null) {
-                    Platform.runLater(() -> EPortal.controller.resultText.setText("Error: Auth server error!"));
+                    Platform.runLater(() -> EPortal.controller.resultText.setText("错误: 与认证服务器通信时出错!"));
                     error = true;
                 }
                 return;
@@ -122,14 +122,14 @@ public class Authenticator {
         } catch (SocketTimeoutException e) {
             System.err.println(e.getMessage());
             if (EPortal.controller != null) {
-                Platform.runLater(() -> EPortal.controller.resultText.setText("Error: Auth server connection timeout!"));
+                Platform.runLater(() -> EPortal.controller.resultText.setText("错误: 无法连接到认证服务器!"));
                 error = true;
             }
             online = false;
         } catch (SocketException e) {
             System.err.println(e.getMessage());
             if (EPortal.controller != null) {
-                Platform.runLater(() -> EPortal.controller.resultText.setText("Error: No Internet connection!"));
+                Platform.runLater(() -> EPortal.controller.resultText.setText("错误: 无网络连接!"));
                 error = true;
             }
             online = false;
@@ -181,7 +181,7 @@ public class Authenticator {
             String r = resultJson.get("result").getAsString();
             if (Objects.equals(r, "success")) {
                 // 设置当前用户
-                Platform.runLater(() -> EPortal.controller.user.setText("User: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
+                Platform.runLater(() -> EPortal.controller.user.setText("当前用户: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
                 // 设置运营商、剩余时间
                 JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
                 if (ballArray.get(1).getAsJsonObject().get("displayName").getAsString().equals("我的运营商")) {
@@ -190,13 +190,13 @@ public class Authenticator {
                             Authenticator.type = it;
                         }
                     }
-                    Platform.runLater(() -> EPortal.controller.remainLabel.setText("Time remaining: ∞"));
+                    Platform.runLater(() -> EPortal.controller.remainLabel.setText("剩余时长: ∞"));
                     return r;
                 }
                 Authenticator.type = LoginType.WAN;
                 int duration = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
                 StringBuilder sb = new StringBuilder();
-                sb.append("Time remaining: ");
+                sb.append("剩余时长: ");
                 //计算剩余时间
                 int h = duration / 3600;
                 int m = (duration % 3600) / 60;
