@@ -1,6 +1,7 @@
 package cn.reddragon.eportal.config;
 
 import cn.reddragon.eportal.config.configs.AccountConfig;
+import cn.reddragon.eportal.config.configs.AutoReconnectConfig;
 import cn.reddragon.eportal.config.configs.NetTypeConfig;
 import com.google.gson.*;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ public class ConfigManager {
     private static final File configFile = new File("EPortal.json");
     private static final ArrayList<AbstractConfig> configs = new ArrayList<>();
     private static final Logger logger = LogManager.getLogger("ConfigManager");
+    private static final int configVersion = 1;
 
     static {
         if (!configFile.exists()) {
@@ -28,6 +30,7 @@ public class ConfigManager {
         }
         configs.add(new AccountConfig());
         configs.add(new NetTypeConfig());
+        configs.add(new AutoReconnectConfig());
     }
 
     public static void loadConfigs() {
@@ -36,14 +39,19 @@ public class ConfigManager {
             if (!element.isJsonNull()) {
                 JsonObject object = element.getAsJsonObject();
                 for (Entry<String, JsonElement> next : object.entrySet()) {
+                    if (next.getKey().equals("ConfigVersion")) {
+                        // TODO
+                    }
                     for (AbstractConfig config : configs) {
                         if (config.name.equals(next.getKey())) {
                             config.fromJson(next.getValue());
-                            logger.info("成功加载配置文件 {}", config.name);
+                            logger.info("成功加载配置文件 {}.", config.name);
                             break;
                         }
                     }
                 }
+            } else {
+                logger.warn("配置文件损坏!");
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -52,9 +60,10 @@ public class ConfigManager {
 
     public static void saveConfigs() {
         JsonObject root = new JsonObject();
+        root.addProperty("ConfigVersion", configVersion);
         for (AbstractConfig config : configs) {
             root.add(config.name, config.toJson());
-            logger.info("成功保存配置文件 {}", config.name);
+            logger.info("成功保存配置文件 {}.", config.name);
         }
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));

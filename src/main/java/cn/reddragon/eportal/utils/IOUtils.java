@@ -1,5 +1,7 @@
 package cn.reddragon.eportal.utils;
 
+import cn.reddragon.eportal.EPortal;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +22,7 @@ public class IOUtils {
             }
             return sb.toString();*/
         } catch (IOException e) {
-            e.printStackTrace();
+            EPortal.logger.error("读入数据时出错!", e);
             return "";
         }
     }

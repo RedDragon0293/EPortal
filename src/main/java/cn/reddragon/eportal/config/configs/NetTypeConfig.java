@@ -20,6 +20,9 @@ public class NetTypeConfig extends AbstractConfig {
 
     @Override
     public void fromJson(JsonElement element) {
-        selector.setValue(selector.getItems().get(element.getAsInt()));
+        if (element.getAsInt() != -1)
+            selector.setValue(selector.getItems().get(element.getAsInt()));
+        else
+            selector.setValue("");
     }
 }

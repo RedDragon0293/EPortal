@@ -5,6 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,6 +20,7 @@ import java.util.Objects;
 public class Authenticator {
     public static final String ePortalUrl = "http://10.96.0.155/eportal";
     public static final String ePortalInterFaceUrl = ePortalUrl + "/InterFace.do?method=";
+    private static final Logger logger = LogManager.getLogger("Authenticator");
     public static String userIndex = null;
     public static boolean online = false;
     public static LoginType type = null;
@@ -34,7 +37,7 @@ public class Authenticator {
             connection.connect();
             return connection;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("登录时出错!", e);
             return null;
         }
     }
@@ -51,7 +54,7 @@ public class Authenticator {
             String redirectLocation = result.get("Location").get(0);
             userIndex = redirectLocation.substring(redirectLocation.indexOf('=') + 1);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("更新 UserIndex 时出错!", e);
             userIndex = null;
         }
     }
@@ -67,7 +70,7 @@ public class Authenticator {
             connection.connect();
             return connection;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("更新用户数据时出错!", e);
             return null;
         }
     }
@@ -120,21 +123,21 @@ public class Authenticator {
                 error = false;
             }
         } catch (SocketTimeoutException e) {
-            System.err.println(e.getMessage());
+            logger.error("无法连接到认证服务器! {}", e.getMessage());
             if (EPortal.controller != null) {
                 Platform.runLater(() -> EPortal.controller.resultText.setText("错误: 无法连接到认证服务器!"));
                 error = true;
             }
             online = false;
         } catch (SocketException e) {
-            System.err.println(e.getMessage());
+            logger.error("客户端网络错误! {}", e.getMessage());
             if (EPortal.controller != null) {
                 Platform.runLater(() -> EPortal.controller.resultText.setText("错误: 无网络连接!"));
                 error = true;
             }
             online = false;
         } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
+            logger.error("更新在线状态时出错!", e);
             online = false;
         }
     }
@@ -164,7 +167,7 @@ public class Authenticator {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("更新 Session 时出错!", e);
             }
         }).start();
     }
