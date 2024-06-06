@@ -78,7 +78,7 @@ public class MainWindow extends Application {
             box.setValue(box.getItems().get(NetTypeConfig.index));
         else
             box.setValue("");
-        if (AccountConfig.index < AccountManager.accounts.size())
+        if (AccountConfig.index < AccountManager.accounts.size() && AccountConfig.index != -1)
             box2.setValue(box2.getItems().get(AccountConfig.index));
         /*
         TextField name = (TextField) root.lookup("#userNameField");

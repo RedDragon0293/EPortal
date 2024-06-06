@@ -48,18 +48,27 @@ public class ConfigManager {
                         alert.setContentText("配置文件版本过旧! 这可能导致配置加载错误. 由于软件会在退出时保存配置文件, 请考虑在软件退出前备份旧版配置文件.");
                         alert.showAndWait();
                     }
-                    for (AbstractConfig config : configs) {
-                        if (config.name.equals(next.getKey())) {
-                            config.fromJson(next.getValue());
-                            logger.info("成功加载配置文件 {}.", config.name);
-                            break;
+                    AbstractConfig config = null;
+                    try {
+                        for (AbstractConfig abstractConfig : configs) {
+                            config = abstractConfig;
+                            if (config.name.equals(next.getKey())) {
+                                config.fromJson(next.getValue());
+                                logger.info("成功加载配置文件 {}.", config.name);
+                                break;
+                            }
                         }
+                    } catch (Exception e) {
+                        logger.error("加载配置文件 {} 时发生错误!", config.name);
+                        logger.error(e);
                     }
                 }
             } else {
                 logger.warn("配置文件损坏!");
             }
         } catch (FileNotFoundException e) {
+            logger.error("无法加载配置文件!");
+            logger.error(e);
             throw new RuntimeException(e);
         }
     }

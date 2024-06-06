@@ -9,7 +9,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class AccountConfig extends AbstractConfig {
-    public static int index;
+    public static int index = -1;
+
     public AccountConfig() {
         super("Account");
     }

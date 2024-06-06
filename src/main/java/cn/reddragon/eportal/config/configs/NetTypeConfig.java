@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 public class NetTypeConfig extends AbstractConfig {
-    public static int index;
+    public static int index = -1;
 
     public NetTypeConfig() {
         super("NetType");
