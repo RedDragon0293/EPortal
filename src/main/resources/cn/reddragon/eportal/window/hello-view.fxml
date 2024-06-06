@@ -4,33 +4,35 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/21"
-      fx:controller="cn.reddragon.eportal.controllers.MainController">
+      fx:controller="cn.reddragon.eportal.window.controllers.MainController">
     <children>
         <MenuBar fx:id="menuBar" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
             <menus>
                 <Menu mnemonicParsing="false" text="设置">
                     <items>
                         <CheckMenuItem mnemonicParsing="false" text="自动重连"/>
+                        <MenuItem mnemonicParsing="false" onAction="#onOpenAccountWindow" text="账号管理"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="帮助">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="日志"/>
+                        <MenuItem mnemonicParsing="false" text="查看日志"/>
+                        <MenuItem mnemonicParsing="false" text="清除历史日志"/>
                         <MenuItem mnemonicParsing="false" text="关于"/>
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
-        <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="20.0">
+        <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="210.0"
+              spacing="20.0">
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
             </padding>
             <Label fx:id="statusLabel" text="状态:"/>
             <Label fx:id="user" text="当前用户: null"/>
             <Label fx:id="remainLabel" text="剩余时长: 未登录"/>
-            <TextField fx:id="userNameField" promptText="用户名"/>
-            <PasswordField fx:id="passwordField" promptText="密码"/>
-            <ChoiceBox fx:id="selector" prefWidth="150.0"/>
+            <ChoiceBox fx:id="accountSelector" prefWidth="150.0"/>
+            <ChoiceBox fx:id="typeSelector" prefWidth="150.0"/>
             <Button fx:id="button" onAction="#onLoginButtonClick" text="登录"/>
 
             <Label fx:id="resultText" textAlignment="CENTER"/>

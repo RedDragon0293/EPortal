@@ -1,22 +1,14 @@
 package cn.reddragon.eportal;
 
-import cn.reddragon.eportal.config.ConfigManager;
-import cn.reddragon.eportal.utils.Authenticator;
+import cn.reddragon.eportal.window.MainWindow;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main {
+    public static Logger logger = LogManager.getLogger("EPortal");
+
     public static void main(String[] args) {
         Thread.currentThread().setName("EPortal Main");
-        EPortal.askThread.setDaemon(true);
-        Authenticator.checkOnline();
-        try {
-            if (Authenticator.online) {
-                Authenticator.updateUserIndex();
-            }
-        } catch (NullPointerException e) {
-            EPortal.logger.error("启动时出错!", e);
-            System.exit(0);
-        }
-        EPortal.launch();
-        ConfigManager.saveConfigs();
+        MainWindow.main(args);
     }
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<HBox xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      spacing="20.0" xmlns="http://javafx.com/javafx/21"
+      fx:controller="cn.reddragon.eportal.window.controllers.AccountController">
+    <children>
+        <ListView fx:id="listView" prefHeight="200.0" prefWidth="200.0"/>
+        <VBox spacing="20.0">
+            <children>
+                <Label contentDisplay="RIGHT" prefWidth="201.0" text="用户名">
+                    <graphic>
+                        <TextField fx:id="usernameField"/>
+                    </graphic>
+                </Label>
+                <Label contentDisplay="RIGHT" prefWidth="201.0" text="密码">
+                    <graphic>
+                        <PasswordField fx:id="passwordField" translateX="12.0"/>
+                    </graphic>
+                </Label>
+                <HBox alignment="TOP_CENTER" prefWidth="200.0" spacing="20.0">
+                    <children>
+                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#onAddButtonClicked" text="添加"/>
+                        <Button fx:id="editButton" mnemonicParsing="false" onAction="#onEditButtonClicked" text="保存"/>
+                        <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDeleteButtonClicked"
+                                text="删除"/>
+                    </children>
+                </HBox>
+                <Label fx:id="resultText" alignment="CENTER" prefWidth="200.0" textAlignment="CENTER"/>
+            </children>
+            <HBox.margin>
+                <Insets/>
+            </HBox.margin>
+        </VBox>
+    </children>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+</HBox>

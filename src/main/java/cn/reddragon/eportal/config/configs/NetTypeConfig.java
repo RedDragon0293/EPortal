@@ -1,13 +1,12 @@
 package cn.reddragon.eportal.config.configs;
 
-import cn.reddragon.eportal.EPortal;
 import cn.reddragon.eportal.config.AbstractConfig;
+import cn.reddragon.eportal.window.MainWindow;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import javafx.scene.control.ChoiceBox;
 
 public class NetTypeConfig extends AbstractConfig {
-    private final ChoiceBox<String> selector = EPortal.controller.selector;
+    public static int index;
 
     public NetTypeConfig() {
         super("NetType");
@@ -15,14 +14,11 @@ public class NetTypeConfig extends AbstractConfig {
 
     @Override
     public JsonElement toJson() {
-        return new JsonPrimitive(EPortal.controller.selector.getItems().indexOf(EPortal.controller.selector.getValue()));
+        return new JsonPrimitive(MainWindow.controller.typeSelector.getItems().indexOf(MainWindow.controller.typeSelector.getValue()));
     }
 
     @Override
     public void fromJson(JsonElement element) {
-        if (element.getAsInt() != -1)
-            selector.setValue(selector.getItems().get(element.getAsInt()));
-        else
-            selector.setValue("");
+        index = element.getAsInt();
     }
 }

@@ -1,20 +1,12 @@
 package cn.reddragon.eportal.account;
 
-public final class Account {
-    private final String name;
-    private final String password;
-
-    public Account(String name, String password) {
-        this.name = name;
-        this.password = password;
+public record Account(String name, String password) {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof Account a))
+            return false;
+        return name.equals(a.name);
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
 }

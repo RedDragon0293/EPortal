@@ -4,6 +4,7 @@ import cn.reddragon.eportal.config.configs.AccountConfig;
 import cn.reddragon.eportal.config.configs.AutoReconnectConfig;
 import cn.reddragon.eportal.config.configs.NetTypeConfig;
 import com.google.gson.*;
+import javafx.scene.control.Alert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +17,7 @@ public class ConfigManager {
     private static final File configFile = new File("EPortal.json");
     private static final ArrayList<AbstractConfig> configs = new ArrayList<>();
     private static final Logger logger = LogManager.getLogger("ConfigManager");
-    private static final int configVersion = 1;
+    private static final int configVersion = 2;
 
     static {
         if (!configFile.exists()) {
@@ -39,8 +40,13 @@ public class ConfigManager {
             if (!element.isJsonNull()) {
                 JsonObject object = element.getAsJsonObject();
                 for (Entry<String, JsonElement> next : object.entrySet()) {
-                    if (next.getKey().equals("ConfigVersion")) {
-                        // TODO
+                    if (next.getKey().equals("ConfigVersion") && next.getValue().getAsInt() < configVersion) {
+                        logger.warn("配置文件版本过旧!");
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("警告");
+                        alert.setHeaderText(null);
+                        alert.setContentText("配置文件版本过旧! 这可能导致配置加载错误. 由于软件会在退出时保存配置文件, 请考虑在软件退出前备份旧版配置文件.");
+                        alert.showAndWait();
                     }
                     for (AbstractConfig config : configs) {
                         if (config.name.equals(next.getKey())) {

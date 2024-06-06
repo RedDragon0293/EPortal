@@ -1,6 +1,6 @@
 package cn.reddragon.eportal.utils;
 
-import cn.reddragon.eportal.EPortal;
+import cn.reddragon.eportal.window.MainWindow;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -105,8 +105,8 @@ public class Authenticator {
             connection.setInstanceFollowRedirects(false);
             connection.connect();
             if (connection.getResponseCode() != HttpURLConnection.HTTP_MOVED_TEMP) {
-                if (EPortal.controller != null) {
-                    Platform.runLater(() -> EPortal.controller.resultText.setText("错误: 与认证服务器通信时出错!"));
+                if (MainWindow.controller != null) {
+                    Platform.runLater(() -> MainWindow.controller.resultText.setText("错误: 与认证服务器通信时出错!"));
                     error = true;
                 }
                 return;
@@ -118,21 +118,21 @@ public class Authenticator {
                 online = false;
             } else online = redirectLocation.contains(ePortalUrl + "/./success.jsp?");
 
-            if (EPortal.controller != null && error) {
-                Platform.runLater(() -> EPortal.controller.resultText.setText(""));
+            if (MainWindow.controller != null && error) {
+                Platform.runLater(() -> MainWindow.controller.resultText.setText(""));
                 error = false;
             }
         } catch (SocketTimeoutException e) {
             logger.error("无法连接到认证服务器! {}", e.getMessage());
-            if (EPortal.controller != null) {
-                Platform.runLater(() -> EPortal.controller.resultText.setText("错误: 无法连接到认证服务器!"));
+            if (MainWindow.controller != null) {
+                Platform.runLater(() -> MainWindow.controller.resultText.setText("错误: 无法连接到认证服务器!"));
                 error = true;
             }
             online = false;
         } catch (SocketException e) {
             logger.error("客户端网络错误! {}", e.getMessage());
-            if (EPortal.controller != null) {
-                Platform.runLater(() -> EPortal.controller.resultText.setText("错误: 无网络连接!"));
+            if (MainWindow.controller != null) {
+                Platform.runLater(() -> MainWindow.controller.resultText.setText("错误: 无网络连接!"));
                 error = true;
             }
             online = false;
@@ -160,7 +160,7 @@ public class Authenticator {
                     if (Objects.equals(r, "wait")) {
                         Thread.sleep(1000);
                     } else if (Objects.equals(r, "success")) {
-                        EPortal.controller.updateUI();
+                        MainWindow.controller.updateUI();
                         break;
                     } else {
                         break;
@@ -184,7 +184,7 @@ public class Authenticator {
             String r = resultJson.get("result").getAsString();
             if (Objects.equals(r, "success")) {
                 // 设置当前用户
-                Platform.runLater(() -> EPortal.controller.user.setText("当前用户: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
+                Platform.runLater(() -> MainWindow.controller.user.setText("当前用户: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
                 // 设置运营商、剩余时间
                 JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
                 if (ballArray.get(1).getAsJsonObject().get("displayName").getAsString().equals("我的运营商")) {
@@ -193,7 +193,7 @@ public class Authenticator {
                             Authenticator.type = it;
                         }
                     }
-                    Platform.runLater(() -> EPortal.controller.remainLabel.setText("剩余时长: ∞"));
+                    Platform.runLater(() -> MainWindow.controller.remainLabel.setText("剩余时长: ∞"));
                     return r;
                 }
                 Authenticator.type = LoginType.WAN;
@@ -220,10 +220,10 @@ public class Authenticator {
                         sb.append(s).append("s");
                     }
                 }
-                Platform.runLater(() -> EPortal.controller.remainLabel.setText(sb.toString()));
+                Platform.runLater(() -> MainWindow.controller.remainLabel.setText(sb.toString()));
             } else if (!Objects.equals(r, "wait")) {
                 //Authenticator.type = LoginType.OFFLINE;
-                Platform.runLater(() -> EPortal.controller.resultText.setText(resultJson.get("message").getAsString()));
+                Platform.runLater(() -> MainWindow.controller.resultText.setText(resultJson.get("message").getAsString()));
             }
             return r;
         } catch (IOException e) {

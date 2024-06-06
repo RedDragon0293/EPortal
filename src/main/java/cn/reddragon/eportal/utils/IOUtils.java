@@ -1,6 +1,6 @@
 package cn.reddragon.eportal.utils;
 
-import cn.reddragon.eportal.EPortal;
+import cn.reddragon.eportal.Main;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class IOUtils {
             }
             return sb.toString();*/
         } catch (IOException e) {
-            EPortal.logger.error("读入数据时出错!", e);
+            Main.logger.error("读入数据时出错!", e);
             return "";
         }
     }

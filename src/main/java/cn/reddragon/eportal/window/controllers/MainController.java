@@ -1,13 +1,18 @@
-package cn.reddragon.eportal.controllers;
+package cn.reddragon.eportal.window.controllers;
 
-import cn.reddragon.eportal.EPortal;
+import cn.reddragon.eportal.Main;
+import cn.reddragon.eportal.account.Account;
 import cn.reddragon.eportal.account.AccountManager;
 import cn.reddragon.eportal.utils.*;
+import cn.reddragon.eportal.window.AccountWindow;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,7 +24,9 @@ import java.util.Objects;
 
 public class MainController {
     @FXML
-    public ChoiceBox<String> selector;
+    public ChoiceBox<String> typeSelector;
+    @FXML
+    public ChoiceBox<String> accountSelector;
     @FXML
     public Label resultText;
     @FXML
@@ -30,10 +37,6 @@ public class MainController {
     public Label statusLabel;
     @FXML
     public Label user;
-    @FXML
-    private TextField userNameField;
-    @FXML
-    private TextField passwordField;
     @FXML
     public MenuBar menuBar;
 
@@ -80,6 +83,11 @@ public class MainController {
     }
 
     @FXML
+    public void onOpenAccountWindow() {
+        AccountWindow.open();
+    }
+
+    @FXML
     public void onLoginButtonClick() {
         button.setDisable(true);
         if (Authenticator.online) {
@@ -90,7 +98,7 @@ public class MainController {
                 new Thread(() -> {
                     HttpURLConnection connection = null;
                     try {
-                        EPortal.logger.info("尝试发出登出命令.");
+                        Main.logger.info("尝试发出登出命令.");
                         connection = Authenticator.logout();
                         if (connection == null) {
                             Platform.runLater(() -> {
@@ -101,12 +109,12 @@ public class MainController {
                         }
                         JsonObject resultMessage = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
                         //System.out.println(resultMessage.toString());
-                        EPortal.logger.info("服务器返回的是: {}", resultMessage);
+                        Main.logger.info("服务器返回的是: {}", resultMessage);
                         Platform.runLater(() -> resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString()));
                         Authenticator.updateStatus();
                         Platform.runLater(this::updateUI);
                     } catch (Exception e) {
-                        EPortal.logger.error("登出线程出错!", e);
+                        Main.logger.error("登出线程出错!", e);
                         Platform.runLater(() -> resultText.setText(e.getMessage()));
                     } finally {
                         if (connection != null) {
@@ -120,23 +128,24 @@ public class MainController {
             //button.setDisable(false);
             return;
         }
-        String username = userNameField.getText();
-        if (username.isBlank()) {
-            resultText.setText("请输入用户名!");
+        if (accountSelector.getValue().isBlank()) {
             return;
         }
-        String password = passwordField.getText();
-        if (password.isBlank()) {
-            resultText.setText("请输入密码!");
+        Account account = AccountManager.getAccount(accountSelector.getValue());
+        if (account == null) {
+            Main.logger.error("尝试登录时账号错误! selector: {}", accountSelector.getValue());
+            resultText.setText("账号错误!");
             return;
         }
+        String username = account.name();
+        String password = account.password();
         String userId = URIEncoder.encodeURI(URIEncoder.encodeURI(username));
         String pw = URIEncoder.encodeURI(URIEncoder.encodeURI(password));
-        String mode = selector.getValue();
+        String mode = typeSelector.getValue();
         String serviceString = Arrays.stream(LoginType.values()).filter(it -> Objects.equals(it.displayName, mode)).findFirst().map(it -> URIEncoder.encodeURI(URIEncoder.encodeURI(it.authName))).orElse("");
         new Thread(() -> {
             try {
-                EPortal.logger.info("尝试发出登录命令.");
+                Main.logger.info("尝试发出登录命令.");
                 //获取queryString
                 HttpURLConnection connection = HttpUtils.make("http://123.123.123.123", "GET");
                 connection.setInstanceFollowRedirects(false);
@@ -168,17 +177,14 @@ public class MainController {
                 //获取结果
                 JsonObject resultMessage = JsonParser.parseString(IOUtils.readText(loginConnection.getInputStream())).getAsJsonObject();
                 //System.out.println(resultMessage.toString());
-                EPortal.logger.info("服务器返回的是: {}", resultMessage);
+                Main.logger.info("服务器返回的是: {}", resultMessage);
                 String result = resultMessage.get("result").getAsString();
                 Platform.runLater(() -> resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString()));
                 if (result.equals("success")) {
                     Authenticator.userIndex = resultMessage.get("userIndex").getAsString();
-                    //ConfigManager.save(username, password, (byte) selector.getItems().indexOf(mode));
-                    AccountManager.accounts.clear();
-                    AccountManager.addAccount(username, password);
                 }
             } catch (IOException e) {
-                EPortal.logger.error("登录线程出错!", e);
+                Main.logger.error("登录线程出错!", e);
                 Platform.runLater(() -> resultText.setText(e.getMessage()));
             }
             Authenticator.updateStatus();
