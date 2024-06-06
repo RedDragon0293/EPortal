@@ -5,10 +5,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Main {
-    public static Logger logger = LogManager.getLogger("EPortal");
+    public static final String name = "EPortal";
+    public static final String version = "2.0.0";
+    public static Logger logger = LogManager.getLogger(name);
 
     public static void main(String[] args) {
-        Thread.currentThread().setName("EPortal Main");
+        Thread.currentThread().setName(name + " Main");
         MainWindow.main(args);
     }
 }

@@ -1,5 +1,6 @@
 package cn.reddragon.eportal.config;
 
+import cn.reddragon.eportal.Main;
 import cn.reddragon.eportal.config.configs.AccountConfig;
 import cn.reddragon.eportal.config.configs.AutoReconnectConfig;
 import cn.reddragon.eportal.config.configs.NetTypeConfig;
@@ -14,7 +15,7 @@ import java.util.Map.Entry;
 
 public class ConfigManager {
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private static final File configFile = new File("EPortal.json");
+    private static final File configFile = new File(Main.name + ".json");
     private static final ArrayList<AbstractConfig> configs = new ArrayList<>();
     private static final Logger logger = LogManager.getLogger("ConfigManager");
     private static final int configVersion = 2;

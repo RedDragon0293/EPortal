@@ -63,7 +63,7 @@ public class MainWindow extends Application {
         Parent root = fxmlLoader.load();
         controller = fxmlLoader.getController();
         Scene scene = new Scene(root);
-        stage.setTitle("EPortal");
+        stage.setTitle(Main.name + " " + Main.version);
         stage.setScene(scene);
         ConfigManager.loadConfigs();
         AccountWindow.init(stage);
