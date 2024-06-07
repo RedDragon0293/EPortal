@@ -66,7 +66,8 @@ public class MainWindow extends Application {
         stage.setTitle(Main.name + " " + Main.version);
         stage.setScene(scene);
         ConfigManager.loadConfigs();
-        AccountWindow.init(stage);
+        //AccountWindow.init(stage);
+        AccountWindow.fatherStage = stage;
         ChoiceBox<String> box = (ChoiceBox<String>) root.lookup("#typeSelector");
         for (LoginType it : LoginType.values())
             if (!Objects.equals(it.displayName, ""))

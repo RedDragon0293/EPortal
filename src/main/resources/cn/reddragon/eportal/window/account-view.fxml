@@ -23,10 +23,12 @@
                 </Label>
                 <HBox alignment="TOP_CENTER" prefWidth="200.0" spacing="20.0">
                     <children>
-                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#onAddButtonClicked" text="添加"/>
-                        <Button fx:id="editButton" mnemonicParsing="false" onAction="#onEditButtonClicked" text="保存"/>
-                        <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDeleteButtonClicked"
-                                text="删除"/>
+                        <Button fx:id="addButton" disable="true" mnemonicParsing="false" onAction="#onAddButtonClicked"
+                                text="添加"/>
+                        <Button fx:id="editButton" disable="true" mnemonicParsing="false"
+                                onAction="#onEditButtonClicked" text="修改"/>
+                        <Button fx:id="deleteButton" disable="true" mnemonicParsing="false"
+                                onAction="#onDeleteButtonClicked" text="删除"/>
                     </children>
                 </HBox>
                 <Label fx:id="resultText" alignment="CENTER" prefWidth="200.0" textAlignment="CENTER"/>

@@ -26,12 +26,32 @@ public class AccountController {
     @FXML
     public Label resultText;
 
+    public void onTextFieldChanged() {
+        if (usernameField.getText().isBlank() || passwordField.getText().isBlank()) {
+            addButton.setDisable(true);
+            editButton.setDisable(true);
+            deleteButton.setDisable(true);
+        } else {
+            addButton.setDisable(false);
+            editButton.setDisable(false);
+            deleteButton.setDisable(false);
+        }
+    }
+
     public void onSelectionChanged(String newValue) {
+        if (newValue == null) {
+            usernameField.setText("");
+            passwordField.setText("");
+            return;
+        }
         Account account = AccountManager.getAccount(newValue);
         if (account != null) {
             usernameField.setText(account.name());
             passwordField.setText(account.password());
         }
+        addButton.setDisable(true);
+        editButton.setDisable(newValue.isBlank());
+        deleteButton.setDisable(newValue.isBlank());
     }
 
     public void onAddButtonClicked() {
