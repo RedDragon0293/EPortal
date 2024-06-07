@@ -54,6 +54,7 @@ public class AccountController {
         deleteButton.setDisable(newValue.isBlank());
     }
 
+    @FXML
     public void onAddButtonClicked() {
         String username = usernameField.getText();
         if (AccountManager.contains(username)) {
@@ -67,6 +68,7 @@ public class AccountController {
         resultText.setText("添加成功.");
     }
 
+    @FXML
     public void onEditButtonClicked() {
         String username = usernameField.getText();
         if (!AccountManager.contains(username)) {
@@ -78,6 +80,7 @@ public class AccountController {
         resultText.setText("修改成功.");
     }
 
+    @FXML
     public void onDeleteButtonClicked() {
         String username = listView.getSelectionModel().getSelectedItem();
         Alert alert = new Alert(Alert.AlertType.WARNING);

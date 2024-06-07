@@ -5,13 +5,9 @@
             <PatternLayout
                     pattern="%style{[%d{HH:mm:ss}]}{blue} %highlight{[%t/%level]}{FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=green, TRACE=blue} %style{(%c)}{cyan} %highlight{%msg%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=normal, DEBUG=blue, TRACE=normal}"/>
         </Console>
-        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
+        <RandomAccessFile append="false" name="File" fileName="logs/latest.log">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] %msg%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy/>
-                <OnStartupTriggeringPolicy/>
-            </Policies>
-        </RollingRandomAccessFile>
+        </RandomAccessFile>
     </Appenders>
     <Loggers>
         <Root level="info">

@@ -14,6 +14,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -85,6 +87,16 @@ public class MainController {
     @FXML
     public void onOpenAccountWindow() {
         AccountWindow.open();
+    }
+
+    @FXML
+    public void onOpenLog() {
+        Desktop desktop = Desktop.getDesktop();
+        try {
+            desktop.open(new File("logs\\latest.log"));
+        } catch (Exception e) {
+            Main.logger.error("打开日志失败!", e);
+        }
     }
 
     @FXML
