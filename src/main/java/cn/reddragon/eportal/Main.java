@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 public class Main {
     public static final String name = "EPortal";
-    public static final String version = "2.0.0";
+    public static final String version = "2.1.0";
     public static Logger logger = LogManager.getLogger(name);
 
     public static void main(String[] args) {

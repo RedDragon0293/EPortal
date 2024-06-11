@@ -41,6 +41,7 @@ public class MainWindow extends Application {
             }
         }
     });
+    public static Stage fatherStage;
 
     public static void main(String[] args) {
         askThread.setDaemon(true);
@@ -67,7 +68,7 @@ public class MainWindow extends Application {
         stage.setScene(scene);
         ConfigManager.loadConfigs();
         //AccountWindow.init(stage);
-        AccountWindow.fatherStage = stage;
+        fatherStage = stage;
         ChoiceBox<String> box = (ChoiceBox<String>) root.lookup("#typeSelector");
         for (LoginType it : LoginType.values())
             if (!Objects.equals(it.displayName, ""))

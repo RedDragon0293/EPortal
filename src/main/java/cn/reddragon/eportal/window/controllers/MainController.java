@@ -5,20 +5,25 @@ import cn.reddragon.eportal.account.Account;
 import cn.reddragon.eportal.account.AccountManager;
 import cn.reddragon.eportal.utils.*;
 import cn.reddragon.eportal.window.AccountWindow;
+import cn.reddragon.eportal.window.MainWindow;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -91,12 +96,41 @@ public class MainController {
 
     @FXML
     public void onOpenLog() {
-        Desktop desktop = Desktop.getDesktop();
         try {
+            Desktop desktop = Desktop.getDesktop();
             desktop.open(new File("logs\\latest.log"));
         } catch (Exception e) {
             Main.logger.error("打开日志失败!", e);
         }
+    }
+
+    @FXML
+    public void openAboutDialog() {
+        Alert dialog = new Alert(Alert.AlertType.INFORMATION);
+        dialog.setTitle("关于");
+        dialog.setHeaderText(null);
+        VBox vbox = new VBox();
+        Label label1 = new Label(Main.name + " version " + Main.version);
+        vbox.getChildren().add(label1);
+        Hyperlink link = new Hyperlink("https://github.com/RedDragon0293/EPortal");
+        link.setOnAction(e -> {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(new URI("https://github.com/RedDragon0293/EPortal"));
+            } catch (IOException | URISyntaxException ex) {
+                Main.logger.error(ex);
+            }
+        });
+        Label label2 = new Label("开源地址: ");
+        //label2.setLabelFor(link);
+        label2.setGraphic(link);
+        label2.setContentDisplay(ContentDisplay.RIGHT);
+        vbox.getChildren().add(label2);
+        //vbox.getChildren().add(link);
+        dialog.getDialogPane().setContent(vbox);
+        dialog.initOwner(MainWindow.fatherStage);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.showAndWait();
     }
 
     @FXML

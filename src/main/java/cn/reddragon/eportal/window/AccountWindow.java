@@ -16,7 +16,6 @@ import java.io.IOException;
 
 public class AccountWindow {
     public static AccountController controller;
-    public static Stage fatherStage;
     private static Stage stage;
 
     public static Stage getStage() {
@@ -31,7 +30,7 @@ public class AccountWindow {
         Stage stage = new Stage();
         stage.setTitle("账号管理");
         stage.setScene(scene);
-        stage.initOwner(fatherStage);
+        stage.initOwner(MainWindow.fatherStage);
         stage.initModality(Modality.WINDOW_MODAL);
         ListView<String> listView = controller.listView;
         listView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
@@ -55,5 +54,6 @@ public class AccountWindow {
             throw new RuntimeException(e);
         }
         stage.showAndWait();
+        stage = null;
     }
 }
