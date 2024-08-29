@@ -172,62 +172,57 @@ public class Authenticator {
         }).start();
     }
 
-    private static String updateSessionInternal() {
+    private static String updateSessionInternal() throws IOException {
         HttpURLConnection connection = Authenticator.getUserInfo();
         if (connection == null) {
             return "fail";
         }
-        JsonObject resultJson;
-        try {
-            resultJson = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
-            //System.out.println(resultJson.toString());
-            String r = resultJson.get("result").getAsString();
-            if (Objects.equals(r, "success")) {
-                // 设置当前用户
-                Platform.runLater(() -> MainWindow.controller.user.setText("当前用户: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
-                // 设置运营商、剩余时间
-                JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
-                if (ballArray.get(1).getAsJsonObject().get("displayName").getAsString().equals("我的运营商")) {
-                    for (LoginType it : LoginType.values()) {
-                        if (it.authName.contains(ballArray.get(1).getAsJsonObject().get("value").getAsString())) {
-                            Authenticator.type = it;
-                        }
-                    }
-                    Platform.runLater(() -> MainWindow.controller.remainLabel.setText("剩余时长: ∞"));
-                    return r;
-                }
-                Authenticator.type = LoginType.WAN;
-                int duration = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
-                StringBuilder sb = new StringBuilder();
-                sb.append("剩余时长: ");
-                //计算剩余时间
-                int h = duration / 3600;
-                int m = (duration % 3600) / 60;
-                int s = (duration % 3600) % 60;
-                if (h > 0) {
-                    sb.append(h).append("h ");
-                    if (s > 0) {
-                        sb.append(m).append("m ");
-                        sb.append(s).append("s");
-                    } else if (m > 0) {
-                        sb.append(m).append("m");
-                    }
-                } else {
-                    if (m > 0) {
-                        sb.append(m).append("m ");
-                    }
-                    if (s > 0) {
-                        sb.append(s).append("s");
+        JsonObject resultJson = JsonParser.parseString(IOUtils.readText(connection.getInputStream())).getAsJsonObject();
+        //System.out.println(resultJson.toString());
+        String r = resultJson.get("result").getAsString();
+        if (Objects.equals(r, "success")) {
+            // 设置当前用户
+            Platform.runLater(() -> MainWindow.controller.user.setText("当前用户: " + resultJson.get("userName").getAsString() + " (" + resultJson.get("userId").getAsString() + ")"));
+            // 设置运营商、剩余时间
+            JsonArray ballArray = JsonParser.parseString(resultJson.get("ballInfo").getAsString()).getAsJsonArray();
+            if (ballArray.get(1).getAsJsonObject().get("displayName").getAsString().equals("我的运营商")) {
+                for (LoginType it : LoginType.values()) {
+                    if (it.authName.contains(ballArray.get(1).getAsJsonObject().get("value").getAsString())) {
+                        Authenticator.type = it;
                     }
                 }
-                Platform.runLater(() -> MainWindow.controller.remainLabel.setText(sb.toString()));
-            } else if (!Objects.equals(r, "wait")) {
-                //Authenticator.type = LoginType.OFFLINE;
-                Platform.runLater(() -> MainWindow.controller.resultText.setText(resultJson.get("message").getAsString()));
+                Platform.runLater(() -> MainWindow.controller.remainLabel.setText("剩余时长: ∞"));
+                return r;
             }
-            return r;
-        } catch (IOException e) {
-            return "fail";
+            Authenticator.type = LoginType.WAN;
+            int duration = ballArray.get(1).getAsJsonObject().get("value").getAsInt();
+            StringBuilder sb = new StringBuilder();
+            sb.append("剩余时长: ");
+            //计算剩余时间
+            int h = duration / 3600;
+            int m = (duration % 3600) / 60;
+            int s = (duration % 3600) % 60;
+            if (h > 0) {
+                sb.append(h).append("h ");
+                if (s > 0) {
+                    sb.append(m).append("m ");
+                    sb.append(s).append("s");
+                } else if (m > 0) {
+                    sb.append(m).append("m");
+                }
+            } else {
+                if (m > 0) {
+                    sb.append(m).append("m ");
+                }
+                if (s > 0) {
+                    sb.append(s).append("s");
+                }
+            }
+            Platform.runLater(() -> MainWindow.controller.remainLabel.setText(sb.toString()));
+        } else if (!Objects.equals(r, "wait")) {
+            //Authenticator.type = LoginType.OFFLINE;
+            Platform.runLater(() -> MainWindow.controller.resultText.setText(resultJson.get("message").getAsString()));
         }
+        return r;
     }
 }

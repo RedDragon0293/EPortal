@@ -15,6 +15,10 @@ public class AutoReconnectConfig extends AbstractConfig {
         return ((CheckMenuItem) MainWindow.controller.menuBar.getMenus().get(0).getItems().get(0)).isSelected();
     }
 
+    public static void setAutoReconnect(boolean b) {
+        ((CheckMenuItem) MainWindow.controller.menuBar.getMenus().get(0).getItems().get(0)).setSelected(b);
+    }
+
     @Override
     public JsonElement toJson() {
         return new JsonPrimitive(getAutoReconnect());
@@ -22,6 +26,6 @@ public class AutoReconnectConfig extends AbstractConfig {
 
     @Override
     public void fromJson(JsonElement element) {
-        ((CheckMenuItem) MainWindow.controller.menuBar.getMenus().get(0).getItems().get(0)).setSelected(element.getAsBoolean());
+        setAutoReconnect(element.getAsBoolean());
     }
 }

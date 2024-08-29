@@ -3,6 +3,7 @@ package cn.reddragon.eportal.window.controllers;
 import cn.reddragon.eportal.Main;
 import cn.reddragon.eportal.account.Account;
 import cn.reddragon.eportal.account.AccountManager;
+import cn.reddragon.eportal.config.configs.AutoReconnectConfig;
 import cn.reddragon.eportal.utils.*;
 import cn.reddragon.eportal.window.AccountWindow;
 import cn.reddragon.eportal.window.MainWindow;
@@ -46,6 +47,8 @@ public class MainController {
     public Label user;
     @FXML
     public MenuBar menuBar;
+
+    private static boolean temp = false;
 
     public void updateUI() {
         StringBuilder sb = new StringBuilder();
@@ -141,6 +144,10 @@ public class MainController {
                 resultText.setText("当前设备已登录!");
                 button.setText("登出");
             } else if (button.getText().equals("登出")) {
+                if (AutoReconnectConfig.getAutoReconnect()) {
+                    temp = true;
+                    AutoReconnectConfig.setAutoReconnect(false);
+                }
                 new Thread(() -> {
                     HttpURLConnection connection = null;
                     try {
@@ -228,6 +235,10 @@ public class MainController {
                 Platform.runLater(() -> resultText.setText(resultMessage.get("result").getAsString() + ":" + resultMessage.get("message").getAsString()));
                 if (result.equals("success")) {
                     Authenticator.userIndex = resultMessage.get("userIndex").getAsString();
+                    if (temp) {
+                        AutoReconnectConfig.setAutoReconnect(true);
+                        temp = false;
+                    }
                 }
             } catch (IOException e) {
                 Main.logger.error("登录线程出错!", e);
